@@ -235,10 +235,10 @@ const Dashboard = () => {
           {/* Hero Text */}
           <div className="text-center mb-12 space-y-3">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-              Generate production-ready React Native apps from a prompt.
+              Turn your app idea into reality in minutes.
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              We ship a full Expo project (screens, navigation, assets) — downloadable as a ZIP.
+              Describe what you want to build, and our AI creates a complete mobile app—ready to download and launch.
             </p>
           </div>
 
