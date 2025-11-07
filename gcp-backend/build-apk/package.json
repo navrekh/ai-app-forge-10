@@ -1,25 +1,18 @@
 {
-  "name": "mobiledev-backend",
+  "name": "build-apk",
   "version": "1.0.0",
-  "description": "GCP Cloud Run backend for MobileDev with Firebase Auth",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "firebase-admin": "^12.0.0",
     "cors": "^2.8.5",
-    "@google/generative-ai": "^0.21.0",
     "@google-cloud/storage": "^7.7.0",
     "node-fetch": "^2.7.0",
-    "archiver": "^7.0.1",
     "adm-zip": "^0.5.10",
     "form-data": "^4.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.0"
   },
   "engines": {
     "node": ">=18"

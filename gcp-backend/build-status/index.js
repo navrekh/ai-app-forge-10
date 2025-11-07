@@ -68,7 +68,10 @@ app.get('/build-status/:buildId', verifyToken, async (req, res) => {
     res.json({
       buildId: buildDoc.id,
       status: buildData.status,
+      platform: buildData.platform,
       downloadUrl: buildData.downloadUrl || null,
+      expoArtifactUrl: buildData.expoArtifactUrl || null,
+      expoBuildId: buildData.expoBuildId || null,
       errorMessage: buildData.errorMessage || null,
       createdAt: buildData.createdAt,
       updatedAt: buildData.updatedAt
