@@ -291,7 +291,7 @@ const Dashboard = () => {
             </div>
 
             {/* Right Side - Phone Preview */}
-            <div className="flex items-center justify-center animate-scale-in">
+            <div className="flex flex-col items-center justify-center gap-6 animate-scale-in">
               <div className="relative">
                 {/* Glow effect behind phone */}
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl scale-110 opacity-50" />
@@ -362,6 +362,35 @@ const Dashboard = () => {
                   )}
                 </PhoneMockup>
               </div>
+
+              {/* Action Buttons */}
+              {generatedApp && !generating && (
+                <div className="w-full max-w-[375px] space-y-3 animate-fade-in">
+                  <div className="flex gap-2">
+                    <Button
+                      disabled
+                      variant="outline"
+                      className="flex-1 border-border/50 bg-card/30 backdrop-blur-xl"
+                    >
+                      Download APK
+                    </Button>
+                    <Button
+                      disabled
+                      variant="outline"
+                      className="flex-1 border-border/50 bg-card/30 backdrop-blur-xl"
+                    >
+                      Download IPA
+                    </Button>
+                  </div>
+                  <Button
+                    disabled
+                    variant="outline"
+                    className="w-full border-border/50 bg-card/30 backdrop-blur-xl"
+                  >
+                    View Code
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
