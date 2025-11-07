@@ -11,6 +11,7 @@ import { AddComponentDialog } from '@/components/AddComponentDialog';
 import { EditableComponent } from '@/components/EditableComponent';
 import { ViewCodeDialog } from '@/components/ViewCodeDialog';
 import { generateReactNativeCode } from '@/utils/codeGenerator';
+import { DownloadAPKButton } from '@/components/DownloadAPKButton';
 
 interface Project {
   name: string;
@@ -146,14 +147,7 @@ const PreviewApp = () => {
                 <div className="flex flex-col gap-3 pt-4 border-t">
                   <p className="text-sm font-medium">Export Options</p>
                   <div className="flex gap-2">
-                    <Button
-                      disabled
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download APK
-                    </Button>
+                    <DownloadAPKButton projectId={id!} />
                     <Button
                       disabled
                       variant="outline"

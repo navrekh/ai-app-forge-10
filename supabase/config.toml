@@ -5,3 +5,10 @@ verify_jwt = false
 
 [functions.verify-razorpay-payment]
 verify_jwt = true
+
+[functions.create-apk-build]
+verify_jwt = true
+
+[functions.check-build-status]
+verify_jwt = true
+
