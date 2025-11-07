@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { ComponentEditor } from '@/components/ComponentEditor';
 import { AddComponentDialog } from '@/components/AddComponentDialog';
 import { EditableComponent } from '@/components/EditableComponent';
+import { ViewCodeDialog } from '@/components/ViewCodeDialog';
+import { generateReactNativeCode } from '@/utils/codeGenerator';
 
 interface Project {
   name: string;
@@ -24,6 +26,7 @@ const PreviewApp = () => {
   const [loading, setLoading] = useState(true);
   const [editableComponents, setEditableComponents] = useState<any[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+  const [viewCodeOpen, setViewCodeOpen] = useState(false);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -75,6 +78,7 @@ const PreviewApp = () => {
   if (!project) return null;
 
   const selectedComponent = editableComponents.find(c => c.id === selectedComponentId);
+  const generatedCode = generateReactNativeCode(project, editableComponents);
 
   const handleComponentUpdate = (updates: any) => {
     setEditableComponents(prev =>
@@ -160,7 +164,7 @@ const PreviewApp = () => {
                     </Button>
                   </div>
                   <Button
-                    disabled
+                    onClick={() => setViewCodeOpen(true)}
                     variant="outline"
                     className="w-full"
                   >
@@ -246,6 +250,12 @@ const PreviewApp = () => {
           </div>
         </div>
       </main>
+
+      <ViewCodeDialog
+        code={generatedCode}
+        open={viewCodeOpen}
+        onOpenChange={setViewCodeOpen}
+      />
     </div>
   );
 };
