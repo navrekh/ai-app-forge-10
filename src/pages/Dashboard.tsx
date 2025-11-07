@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DownloadAPKButton } from "@/components/DownloadAPKButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_CONFIG, getAuthHeaders } from "@/config/backend";
 
 interface RecentPrompt {
   prompt: string;
@@ -41,7 +42,6 @@ const Dashboard = () => {
 
   const charLimit = 1000;
   const charCount = prompt.length;
-  const API_BASE = 'https://mobiledev-backend-680477926513.asia-south1.run.app';
 
   // Load recent prompts from localStorage
   useEffect(() => {
@@ -59,9 +59,9 @@ const Dashboard = () => {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const response = await fetch(`${API_BASE}/health`);
+        const response = await fetch(`${BACKEND_CONFIG.generateAppUrl}/health`);
         const data = await response.json();
-        setApiStatus(data.status === 'ok' ? 'online' : 'offline');
+        setApiStatus(data.status === 'healthy' ? 'online' : 'offline');
       } catch (error) {
         console.error('Health check failed:', error);
         setApiStatus('offline');
@@ -100,14 +100,13 @@ const Dashboard = () => {
 
     try {
       const token = await getAuthToken();
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      if (!token) {
+        toast.error('Authentication required');
+        return;
       }
 
-      const response = await fetch(`${API_BASE}/generate-app`, {
+      const headers = await getAuthHeaders(token);
+      const response = await fetch(`${BACKEND_CONFIG.generateAppUrl}/generate-app`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ prompt: trimmedPrompt }),

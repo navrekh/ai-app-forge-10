@@ -10,8 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
-
-const API_BASE = 'https://mobiledev-backend-680477926513.asia-south1.run.app';
+import { BACKEND_CONFIG, getAuthHeaders } from "@/config/backend";
 
 interface DownloadAPKButtonProps {
   appHistoryId: string;
@@ -33,14 +32,10 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
     const interval = setInterval(async () => {
       try {
         const token = await getAuthToken();
-        const headers: HeadersInit = {
-          'Content-Type': 'application/json',
-        };
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
+        if (!token) return;
 
-        const response = await fetch(`${API_BASE}/build-status/${buildId}`, { headers });
+        const headers = await getAuthHeaders(token);
+        const response = await fetch(`${BACKEND_CONFIG.buildStatusUrl}/build-status/${buildId}`, { headers });
         
         if (!response.ok) {
           throw new Error(`Failed to check build status: ${response.statusText}`);
@@ -53,7 +48,7 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
         if (data.status === 'completed') {
           setDownloadUrl(data.downloadUrl);
           setBuilding(false);
-          toast.success('APK build completed!');
+          toast.success(`${data.platform === 'ios' ? 'IPA' : 'APK'} build completed!`);
           clearInterval(interval);
         } else if (data.status === 'failed') {
           setErrorMessage(data.errorMessage || 'Unknown error');
@@ -66,10 +61,10 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
         toast.error('Failed to check build status');
         clearInterval(interval);
       }
-    }, 5000); // Check every 5 seconds
+    }, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
-  }, [buildId, status]);
+  }, [buildId, status, getAuthToken]);
 
   const handleBuild = async () => {
     try {
@@ -79,21 +74,26 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
       setErrorMessage(null);
       
       const token = await getAuthToken();
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      if (!token) {
+        toast.error('Authentication required');
+        setBuilding(false);
+        setShowDialog(false);
+        return;
       }
 
-      const response = await fetch(`${API_BASE}/build-apk`, {
+      const headers = await getAuthHeaders(token);
+      const response = await fetch(`${BACKEND_CONFIG.buildApkUrl}/build-apk`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ appHistoryId }),
+        body: JSON.stringify({ 
+          appHistoryId,
+          platform: 'android' 
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to start build: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to start build: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -101,7 +101,7 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
       if (data.buildId) {
         setBuildId(data.buildId);
         setStatus(data.status || 'pending');
-        toast.success('Build started! This may take a few minutes...');
+        toast.success('Build started! This may take 10-30 minutes...');
       } else {
         throw new Error('No build ID returned from server');
       }
@@ -189,7 +189,7 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
             
             {status === 'building' && (
               <p className="text-sm text-muted-foreground text-center">
-                We're packaging your app with all its components and assets.
+                Building via Expo EAS Build. This typically takes 10-30 minutes.
                 You'll be notified when it's ready.
               </p>
             )}
