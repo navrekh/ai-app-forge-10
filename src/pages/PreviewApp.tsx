@@ -147,7 +147,7 @@ const PreviewApp = () => {
                 <div className="flex flex-col gap-3 pt-4 border-t">
                   <p className="text-sm font-medium">Export Options</p>
                   <div className="flex gap-2">
-                    <DownloadAPKButton projectId={id!} />
+                    <DownloadAPKButton appHistoryId={id!} />
                     <Button
                       disabled
                       variant="outline"

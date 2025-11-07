@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/dialog";
 
 interface DownloadAPKButtonProps {
-  projectId: string;
+  appHistoryId: string;
   disabled?: boolean;
 }
 
-export const DownloadAPKButton = ({ projectId, disabled }: DownloadAPKButtonProps) => {
+export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonProps) => {
   const [building, setBuilding] = useState(false);
   const [buildId, setBuildId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('idle');
@@ -61,7 +61,7 @@ export const DownloadAPKButton = ({ projectId, disabled }: DownloadAPKButtonProp
       setStatus('pending');
       
       const { data, error } = await supabase.functions.invoke('create-apk-build', {
-        body: { projectId },
+        body: { appHistoryId },
       });
 
       if (error) throw error;

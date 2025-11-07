@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { supabase } from "@/integrations/supabase/client";
+import { DownloadAPKButton } from "@/components/DownloadAPKButton";
 
 interface RecentPrompt {
   prompt: string;
@@ -372,24 +373,31 @@ const Dashboard = () => {
                 </Button>
 
                 {currentAppId && (
-                  <Button 
-                    onClick={handleCopyShareUrl}
-                    size="lg"
-                    className="w-full"
-                    variant="outline"
-                  >
-                    {copiedUrl ? (
-                      <>
-                        <Check className="mr-2 h-4 w-4" />
-                        Link Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy Share Link
-                      </>
-                    )}
-                  </Button>
+                  <>
+                    <DownloadAPKButton 
+                      appHistoryId={currentAppId}
+                      disabled={!apiResponse?.success}
+                    />
+                    
+                    <Button 
+                      onClick={handleCopyShareUrl}
+                      size="lg"
+                      className="w-full"
+                      variant="outline"
+                    >
+                      {copiedUrl ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4" />
+                          Link Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy Share Link
+                        </>
+                      )}
+                    </Button>
+                  </>
                 )}
 
                 <div className="grid grid-cols-2 gap-3">

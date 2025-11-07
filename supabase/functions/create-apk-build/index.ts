@@ -28,30 +28,35 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { projectId } = await req.json();
+    const { appHistoryId } = await req.json();
     
-    if (!projectId) {
-      throw new Error('Project ID is required');
+    if (!appHistoryId) {
+      throw new Error('App history ID is required');
     }
 
-    console.log('Creating APK build for project:', projectId);
+    console.log('Creating APK build for app:', appHistoryId);
 
-    // Get project data
-    const { data: project, error: projectError } = await supabaseClient
-      .from('projects')
+    // Get app data from history
+    const { data: app, error: appError } = await supabaseClient
+      .from('app_history')
       .select('*')
-      .eq('id', projectId)
+      .eq('id', appHistoryId)
       .single();
 
-    if (projectError || !project) {
-      throw new Error('Project not found');
+    if (appError || !app) {
+      throw new Error('App not found');
+    }
+
+    // Check if user owns this app or if it's public (no user_id)
+    if (app.user_id && app.user_id !== user.id) {
+      throw new Error('Unauthorized access to app');
     }
 
     // Create build record
     const { data: build, error: buildError } = await supabaseClient
       .from('builds')
       .insert({
-        project_id: projectId,
+        project_id: appHistoryId,
         user_id: user.id,
         platform: 'android',
         status: 'pending',
