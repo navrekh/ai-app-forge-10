@@ -170,7 +170,7 @@ const Dashboard = () => {
       <header className="w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               MobileDev
             </h1>
             <p className="text-sm text-muted-foreground mt-1">AI App Builder for React Native</p>
