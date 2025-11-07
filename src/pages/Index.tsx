@@ -118,8 +118,29 @@ const Index = () => {
       </main>
 
       <footer className="border-t border-border/50 mt-20">
-        <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 MobileDev Builder. Generate mobile apps with AI.</p>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <button onClick={() => navigate('/pricing')} className="text-muted-foreground hover:text-primary transition-colors">
+                Pricing
+              </button>
+              <button onClick={() => navigate('/terms')} className="text-muted-foreground hover:text-primary transition-colors">
+                Terms & Conditions
+              </button>
+              <button onClick={() => navigate('/privacy')} className="text-muted-foreground hover:text-primary transition-colors">
+                Privacy Policy
+              </button>
+              <button onClick={() => navigate('/refunds')} className="text-muted-foreground hover:text-primary transition-colors">
+                Refunds
+              </button>
+              <button onClick={() => navigate('/contact')} className="text-muted-foreground hover:text-primary transition-colors">
+                Contact Us
+              </button>
+            </div>
+            <p className="text-center text-sm text-muted-foreground">
+              © 2025 MobileDev Builder. Generate mobile apps with AI.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
