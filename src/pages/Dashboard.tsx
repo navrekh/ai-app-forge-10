@@ -56,7 +56,7 @@ const Dashboard = () => {
 
     try {
       const response = await fetch(
-        'https://ai-appgen-api-680477926513.asia-south1.run.app/generate',
+        'https://ai-appgen-ai-680477926513.asia-south1.run.app/generate',
         {
           method: 'POST',
           headers: {
