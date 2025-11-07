@@ -238,7 +238,21 @@ const Dashboard = () => {
               API: {apiStatus === 'checking' ? 'Checking...' : apiStatus === 'online' ? 'Online' : 'Offline'}
             </div>
             {user && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/builds-history')}
+                >
+                  History
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/profile')}
+                >
+                  Profile
+                </Button>
                 <span className="text-sm text-muted-foreground">{user.email}</span>
                 <Button 
                   variant="outline" 

@@ -10,6 +10,8 @@ import FirebaseAuth from "./pages/FirebaseAuth";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import PreviewApp from "./pages/PreviewApp";
+import BuildsHistory from "./pages/BuildsHistory";
+import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/project/:id" element={<ProtectedRoute><PreviewApp /></ProtectedRoute>} />
+          <Route path="/builds-history" element={<ProtectedRoute><BuildsHistory /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/refunds" element={<Refunds />} />
