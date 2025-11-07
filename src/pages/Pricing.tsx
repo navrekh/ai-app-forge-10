@@ -2,9 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
+import { useRazorpay } from "@/hooks/useRazorpay";
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const { initiatePayment } = useRazorpay();
+
+  const handleBuyCredits = () => {
+    initiatePayment(3000, 100);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
@@ -99,7 +105,7 @@ const Pricing = () => {
             </div>
 
             <Button 
-              onClick={() => navigate("/auth")} 
+              onClick={handleBuyCredits}
               className="w-full"
             >
               Buy Credits
