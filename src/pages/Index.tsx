@@ -55,15 +55,14 @@ const Index = () => {
             </div>
             
             <h1 className="mb-6 text-5xl font-bold leading-tight md:text-6xl lg:text-7xl">
-              Build Mobile Apps with{' '}
+              From Idea to{' '}
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                AI Magic
+                App in Minutes
               </span>
             </h1>
             
             <p className="mb-10 text-xl text-muted-foreground md:text-2xl">
-              Describe your app idea and watch AI generate beautiful mobile interfaces in seconds.
-              No coding required.
+              Turn your vision into a complete mobile app. Just describe what you want, and our AI builds it—ready to download and deploy.
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
