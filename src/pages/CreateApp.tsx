@@ -1,8 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,12 +9,22 @@ import { toast } from 'sonner';
 import { ArrowLeft, Wand2, Save } from 'lucide-react';
 
 const CreateApp = () => {
-  const [user] = useAuthState(auth);
+  const [user, setUser] = useState<any>(null);
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [generatedApp, setGeneratedApp] = useState<any>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate('/auth');
+      } else {
+        setUser(session.user);
+      }
+    });
+  }, [navigate]);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -57,17 +65,23 @@ const CreateApp = () => {
 
     setSaving(true);
     try {
-      const docRef = await addDoc(collection(db, 'projects'), {
-        userId: user.uid,
-        name: generatedApp.name || 'Untitled App',
-        description: prompt,
-        screens: generatedApp.screens || [],
-        components: generatedApp.components || [],
-        createdAt: serverTimestamp(),
-      });
+      const { error } = await supabase
+        .from('projects')
+        .insert({
+          user_id: user.id,
+          name: generatedApp.name || 'Untitled App',
+          description: prompt,
+          app_data: {
+            ...generatedApp,
+            screens: generatedApp.screens || [],
+            components: generatedApp.components || []
+          }
+        });
+
+      if (error) throw error;
 
       toast.success('Project saved successfully!');
-      navigate(`/preview/${docRef.id}`);
+      navigate('/dashboard');
     } catch (error) {
       console.error('Save error:', error);
       toast.error('Failed to save project');

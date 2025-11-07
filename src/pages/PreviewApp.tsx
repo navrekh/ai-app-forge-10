@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhoneMockup } from '@/components/PhoneMockup';
@@ -11,9 +10,8 @@ import { toast } from 'sonner';
 interface Project {
   name: string;
   description: string;
-  createdAt: Date;
-  screens: any[];
-  components: any[];
+  created_at: string;
+  app_data: any;
 }
 
 const PreviewApp = () => {
@@ -27,15 +25,16 @@ const PreviewApp = () => {
       if (!id) return;
 
       try {
-        const docRef = doc(db, 'projects', id);
-        const docSnap = await getDoc(docRef);
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setProject({
-            ...data,
-            createdAt: data.createdAt?.toDate(),
-          } as Project);
+        if (error) throw error;
+
+        if (data) {
+          setProject(data);
         } else {
           toast.error('Project not found');
           navigate('/dashboard');
@@ -43,6 +42,7 @@ const PreviewApp = () => {
       } catch (error) {
         console.error('Error fetching project:', error);
         toast.error('Failed to load project');
+        navigate('/dashboard');
       } finally {
         setLoading(false);
       }
@@ -89,7 +89,7 @@ const PreviewApp = () => {
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Calendar className="mr-2 h-4 w-4" />
-                  Created {project.createdAt?.toLocaleDateString()}
+                  Created {new Date(project.created_at).toLocaleDateString()}
                 </div>
               </CardContent>
             </Card>
@@ -100,7 +100,7 @@ const PreviewApp = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {project.screens?.map((screen: any, index: number) => (
+                  {project.app_data?.screens?.map((screen: any, index: number) => (
                     <div key={index} className="p-3 border rounded-lg">
                       <h4 className="font-medium mb-1">{screen.name}</h4>
                       <p className="text-sm text-muted-foreground">{screen.description}</p>
@@ -110,14 +110,14 @@ const PreviewApp = () => {
               </CardContent>
             </Card>
 
-            {project.components && project.components.length > 0 && (
+            {project.app_data?.components && project.app_data.components.length > 0 && (
               <Card className="shadow-card">
                 <CardHeader>
                   <CardTitle>Components</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {project.components.map((component: any, index: number) => (
+                    {project.app_data.components.map((component: any, index: number) => (
                       <div key={index} className="p-2 border rounded">
                         <p className="text-sm font-medium">{component.name}</p>
                       </div>
@@ -132,7 +132,7 @@ const PreviewApp = () => {
             <PhoneMockup>
               <div className="h-full p-6 overflow-y-auto">
                 <h2 className="text-2xl font-bold mb-4">{project.name}</h2>
-                {project.screens?.map((screen: any, index: number) => (
+                {project.app_data?.screens?.map((screen: any, index: number) => (
                   <div key={index} className="mb-6 p-4 border rounded-lg">
                     <h3 className="font-semibold mb-2">{screen.name}</h3>
                     <p className="text-sm text-muted-foreground">{screen.description}</p>

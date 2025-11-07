@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -13,15 +10,30 @@ interface AppProject {
   id: string;
   name: string;
   description: string;
-  createdAt: Date;
-  screens: any[];
+  created_at: string;
+  app_data: any;
 }
 
 const Dashboard = () => {
-  const [user, loading] = useAuthState(auth);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<AppProject[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -34,18 +46,14 @@ const Dashboard = () => {
       if (!user) return;
       
       try {
-        const q = query(
-          collection(db, 'projects'),
-          where('userId', '==', user.uid),
-          orderBy('createdAt', 'desc')
-        );
-        const querySnapshot = await getDocs(q);
-        const projectsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate(),
-        })) as AppProject[];
-        setProjects(projectsData);
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setProjects(data || []);
       } catch (error) {
         console.error('Error fetching projects:', error);
         toast.error('Failed to load projects');
@@ -59,7 +67,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await supabase.auth.signOut();
       toast.success('Logged out successfully');
       navigate('/auth');
     } catch (error) {
@@ -157,7 +165,7 @@ const Dashboard = () => {
                 <CardContent>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Calendar className="mr-2 h-4 w-4" />
-                    {project.createdAt?.toLocaleDateString()}
+                    {new Date(project.created_at).toLocaleDateString()}
                   </div>
                 </CardContent>
               </Card>
