@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -10,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+const API_BASE = 'https://mobiledev-backend-680477926513.asia-south1.run.app';
 
 interface DownloadAPKButtonProps {
   appHistoryId: string;
@@ -21,6 +22,7 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
   const [buildId, setBuildId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('idle');
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
@@ -28,25 +30,30 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
 
     const interval = setInterval(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('check-build-status', {
-          body: { buildId },
-        });
+        const response = await fetch(`${API_BASE}/build-status/${buildId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to check build status: ${response.statusText}`);
+        }
 
-        if (error) throw error;
-
+        const data = await response.json();
         console.log('Build status:', data.status);
         setStatus(data.status);
 
         if (data.status === 'completed') {
           setDownloadUrl(data.downloadUrl);
+          setBuilding(false);
           toast.success('APK build completed!');
           clearInterval(interval);
         } else if (data.status === 'failed') {
+          setErrorMessage(data.errorMessage || 'Unknown error');
+          setBuilding(false);
           toast.error('Build failed: ' + (data.errorMessage || 'Unknown error'));
           clearInterval(interval);
         }
       } catch (error) {
         console.error('Error checking build status:', error);
+        toast.error('Failed to check build status');
         clearInterval(interval);
       }
     }, 5000); // Check every 5 seconds
@@ -59,19 +66,34 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
       setBuilding(true);
       setShowDialog(true);
       setStatus('pending');
+      setErrorMessage(null);
       
-      const { data, error } = await supabase.functions.invoke('create-apk-build', {
-        body: { appHistoryId },
+      const response = await fetch(`${API_BASE}/build-apk`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ appHistoryId }),
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to start build: ${response.statusText}`);
+      }
 
-      setBuildId(data.buildId);
-      setStatus(data.status);
-      toast.success('Build started! This may take a few minutes...');
+      const data = await response.json();
+
+      if (data.buildId) {
+        setBuildId(data.buildId);
+        setStatus(data.status || 'pending');
+        toast.success('Build started! This may take a few minutes...');
+      } else {
+        throw new Error('No build ID returned from server');
+      }
     } catch (error) {
       console.error('Error starting build:', error);
-      toast.error('Failed to start build');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to start build';
+      toast.error(errorMsg);
+      setErrorMessage(errorMsg);
       setBuilding(false);
       setShowDialog(false);
     }
@@ -80,10 +102,13 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
   const handleDownload = () => {
     if (downloadUrl) {
       window.open(downloadUrl, '_blank');
+      toast.success('APK download started!');
       setShowDialog(false);
       setBuilding(false);
       setStatus('idle');
       setBuildId(null);
+      setDownloadUrl(null);
+      setErrorMessage(null);
     }
   };
 
@@ -161,16 +186,32 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
             )}
 
             {status === 'failed' && (
-              <Button
-                onClick={() => {
-                  setShowDialog(false);
-                  setBuilding(false);
-                  setStatus('idle');
-                }}
-                variant="outline"
-              >
-                Close
-              </Button>
+              <div className="space-y-3">
+                {errorMessage && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    {errorMessage}
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleBuild}
+                    variant="outline"
+                  >
+                    Retry
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowDialog(false);
+                      setBuilding(false);
+                      setStatus('idle');
+                      setErrorMessage(null);
+                    }}
+                    variant="outline"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         </DialogContent>
