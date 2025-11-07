@@ -216,77 +216,84 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen gradient-hero">
       {/* Header */}
-      <header className="w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              MobileDev
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">AI App Builder for React Native</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
-              apiStatus === 'online' 
-                ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
-                : apiStatus === 'offline'
-                ? 'bg-muted text-muted-foreground'
-                : 'bg-muted text-muted-foreground animate-pulse'
-            }`}>
-              <div className={`w-2 h-2 rounded-full ${
-                apiStatus === 'online' ? 'bg-green-500' : 'bg-muted-foreground'
-              }`} />
-              API: {apiStatus === 'checking' ? 'Checking...' : apiStatus === 'online' ? 'Online' : 'Offline'}
+      <header className="w-full border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate">
+                MobileDev
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">AI App Builder for React Native</p>
             </div>
-            {user && (
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/builds-history')}
-                >
-                  History
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/profile')}
-                >
-                  Profile
-                </Button>
-                <span className="text-sm text-muted-foreground">{user.email}</span>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={async () => {
-                    await logout();
-                    navigate('/firebase-auth');
-                  }}
-                >
-                  Logout
-                </Button>
+            <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+              <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+                apiStatus === 'online' 
+                  ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
+                  : apiStatus === 'offline'
+                  ? 'bg-muted text-muted-foreground'
+                  : 'bg-muted text-muted-foreground animate-pulse'
+              }`}>
+                <div className={`w-2 h-2 rounded-full ${
+                  apiStatus === 'online' ? 'bg-green-500' : 'bg-muted-foreground'
+                }`} />
+                API: {apiStatus === 'checking' ? 'Checking...' : apiStatus === 'online' ? 'Online' : 'Offline'}
               </div>
-            )}
+              {user && (
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/builds-history')}
+                    className="text-xs sm:text-sm px-2 sm:px-3"
+                  >
+                    <span className="hidden sm:inline">History</span>
+                    <span className="sm:hidden">📋</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/profile')}
+                    className="text-xs sm:text-sm px-2 sm:px-3"
+                  >
+                    <span className="hidden sm:inline">Profile</span>
+                    <span className="sm:hidden">👤</span>
+                  </Button>
+                  <span className="text-xs sm:text-sm text-muted-foreground hidden lg:inline truncate max-w-[150px]">{user.email}</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={async () => {
+                      await logout();
+                      navigate('/firebase-auth');
+                    }}
+                    className="text-xs sm:text-sm"
+                  >
+                    Logout
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
         <div className="max-w-7xl mx-auto">
           {/* Hero Text */}
-          <div className="text-center mb-12 space-y-3">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+          <div className="text-center mb-6 sm:mb-12 space-y-2 sm:space-y-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground px-2">
               Turn your app idea into reality in minutes.
             </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto px-4">
               Describe what you want to build, and our AI creates a complete mobile app—ready to download and launch.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
             {/* Left Panel - Form */}
-            <div className="space-y-6 lg:col-span-2">{/* Form section */}
-              <div className="bg-card shadow-card rounded-xl p-8 space-y-6">
+            <div className="space-y-4 sm:space-y-6 lg:col-span-2">{/* Form section */}
+              <div className="bg-card shadow-card rounded-xl p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">
                     Describe your app
@@ -317,12 +324,13 @@ const Dashboard = () => {
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim() || apiStatus === 'offline'}
                   size="lg"
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Generating your app...
+                      <Loader2 className="mr-2 h-4 sm:h-5 w-4 sm:w-5 animate-spin" />
+                      <span className="hidden sm:inline">Generating your app...</span>
+                      <span className="sm:hidden">Generating...</span>
                     </>
                   ) : (
                     'Generate App'
@@ -332,9 +340,9 @@ const Dashboard = () => {
 
               {/* Recent Prompts */}
               {recentPrompts.length > 0 && (
-                <div className="bg-card shadow-card rounded-xl p-6 space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
+                <div className="bg-card shadow-card rounded-xl p-4 sm:p-6 space-y-3 sm:space-y-4">
+                  <h3 className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Clock className="h-3 sm:h-4 w-3 sm:w-4" />
                     Recent prompts
                   </h3>
                   <div className="space-y-2">
@@ -342,7 +350,7 @@ const Dashboard = () => {
                       <button
                         key={index}
                         onClick={() => handleLoadPrompt(recent.prompt)}
-                        className="w-full text-left p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-sm text-foreground truncate"
+                        className="w-full text-left p-2 sm:p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-xs sm:text-sm text-foreground line-clamp-2"
                       >
                         {recent.prompt}
                       </button>
@@ -356,8 +364,8 @@ const Dashboard = () => {
             </div>
 
             {/* Right Panel - Phone Preview */}
-            <div className="space-y-6 lg:col-span-1">
-              <div className="bg-card shadow-card rounded-xl p-8 flex justify-center">
+            <div className="space-y-4 sm:space-y-6 lg:col-span-1">
+              <div className="bg-card shadow-card rounded-xl p-4 sm:p-6 lg:p-8 flex justify-center">
                 <PhoneMockup>
                   {isGenerating ? (
                     <div className="flex flex-col items-center justify-center h-full space-y-4 p-6">

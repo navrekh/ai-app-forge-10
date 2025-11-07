@@ -137,36 +137,37 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen gradient-hero">
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <Button variant="ghost" onClick={() => navigate('/dashboard')} size="sm" className="text-xs sm:text-sm">
+            <ArrowLeft className="mr-1 sm:mr-2 h-3 sm:h-4 w-3 sm:w-4" />
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">User Profile</h1>
-          <p className="text-muted-foreground">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">User Profile</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage your account information and view your statistics
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Profile Information */}
           <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <User className="h-4 sm:h-5 w-4 sm:w-5" />
                 Profile Information
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Update your personal information
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="flex items-center gap-2">
@@ -231,51 +232,51 @@ const UserProfile = () => {
 
           {/* Usage Statistics */}
           <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle>Usage Statistics</CardTitle>
-              <CardDescription>
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-lg sm:text-xl">Usage Statistics</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 Overview of your app generations and builds
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               {loadingStats ? (
                 <div className="text-center py-8">
                   <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <Smartphone className="h-5 w-5 text-primary" />
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
+                  <div className="bg-primary/5 rounded-lg p-3 sm:p-4 border border-primary/10">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
+                        <Smartphone className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
                       </div>
-                      <div>
-                        <p className="text-2xl font-bold">{stats.totalGenerations}</p>
-                        <p className="text-sm text-muted-foreground">Apps Generated</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-accent/5 rounded-lg p-4 border border-accent/10">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-accent/10 rounded-lg">
-                        <Package className="h-5 w-5 text-accent" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold">{stats.totalBuilds}</p>
-                        <p className="text-sm text-muted-foreground">Total Builds</p>
+                      <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-bold">{stats.totalGenerations}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">Apps Generated</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-green-500/5 rounded-lg p-4 border border-green-500/10">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-green-500/10 rounded-lg">
-                        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div className="bg-accent/5 rounded-lg p-3 sm:p-4 border border-accent/10">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-accent/10 rounded-lg flex-shrink-0">
+                        <Package className="h-4 sm:h-5 w-4 sm:w-5 text-accent" />
                       </div>
-                      <div>
-                        <p className="text-2xl font-bold">{stats.successfulBuilds}</p>
-                        <p className="text-sm text-muted-foreground">Successful Builds</p>
+                      <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-bold">{stats.totalBuilds}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">Total Builds</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-500/5 rounded-lg p-3 sm:p-4 border border-green-500/10">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-green-500/10 rounded-lg flex-shrink-0">
+                        <CheckCircle className="h-4 sm:h-5 w-4 sm:w-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xl sm:text-2xl font-bold">{stats.successfulBuilds}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">Successful Builds</p>
                       </div>
                     </div>
                   </div>

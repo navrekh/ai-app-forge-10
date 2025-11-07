@@ -134,27 +134,34 @@ const BuildsHistory = () => {
 
   return (
     <div className="min-h-screen gradient-hero">
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <Button variant="ghost" onClick={() => navigate('/dashboard')} size="sm" className="text-xs sm:text-sm">
+            <ArrowLeft className="mr-1 sm:mr-2 h-3 sm:h-4 w-3 sm:w-4" />
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Builds History</h1>
-          <p className="text-muted-foreground">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Builds History</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             View all your app generations and build statuses
           </p>
         </div>
 
         <Tabs defaultValue="generations" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="generations">App Generations ({appHistory.length})</TabsTrigger>
-            <TabsTrigger value="builds">APK/IPA Builds ({builds.length})</TabsTrigger>
+          <TabsList className="grid w-full max-w-md grid-cols-2 text-xs sm:text-sm">
+            <TabsTrigger value="generations" className="text-xs sm:text-sm px-2">
+              <span className="hidden sm:inline">App Generations ({appHistory.length})</span>
+              <span className="sm:hidden">Apps ({appHistory.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="builds" className="text-xs sm:text-sm px-2">
+              <span className="hidden sm:inline">APK/IPA Builds ({builds.length})</span>
+              <span className="sm:hidden">Builds ({builds.length})</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="generations" className="mt-6">
@@ -179,15 +186,15 @@ const BuildsHistory = () => {
               <div className="space-y-4">
                 {appHistory.map((app) => (
                   <Card key={app.id} className="shadow-card hover:shadow-glow transition-all">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg mb-2">
+                    <CardHeader className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base sm:text-lg mb-2 line-clamp-2">
                             {app.prompt.slice(0, 60)}...
                           </CardTitle>
-                          <CardDescription className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            {new Date(app.created_at).toLocaleString()}
+                          <CardDescription className="flex items-center gap-2 text-xs sm:text-sm">
+                            <Calendar className="h-3 sm:h-4 w-3 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">{new Date(app.created_at).toLocaleString()}</span>
                           </CardDescription>
                         </div>
                         {app.download_url && (
@@ -195,15 +202,17 @@ const BuildsHistory = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => window.open(app.download_url!, '_blank')}
+                            className="w-full sm:w-auto text-xs sm:text-sm flex-shrink-0"
                           >
-                            <Download className="mr-2 h-4 w-4" />
-                            Download ZIP
+                            <Download className="mr-1 sm:mr-2 h-3 sm:h-4 w-3 sm:w-4" />
+                            <span className="hidden sm:inline">Download ZIP</span>
+                            <span className="sm:hidden">Download</span>
                           </Button>
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                    <CardContent className="p-4 sm:p-6 pt-0">
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                         {app.prompt}
                       </p>
                     </CardContent>
