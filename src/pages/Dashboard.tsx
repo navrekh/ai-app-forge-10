@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { PhoneMockup } from '@/components/PhoneMockup';
 import { toast } from 'sonner';
-import { Smartphone, LogOut, Wand2, Save, FolderOpen, Loader2, Sparkles, Zap, Heart, ShoppingBag, MessageSquare, TrendingUp } from 'lucide-react';
+import { Smartphone, LogOut, Wand2, FolderOpen, Loader2, Sparkles, Zap, Heart, ShoppingBag, MessageSquare, TrendingUp } from 'lucide-react';
 
 const EXAMPLE_PROMPTS = [
   { icon: Heart, label: 'Fitness Tracker', prompt: 'A fitness tracker app with workout logging, progress charts, and meal planning' },
@@ -21,7 +21,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [generatedApp, setGeneratedApp] = useState<any>(null);
   const [showResult, setShowResult] = useState(false);
 
@@ -79,7 +78,34 @@ const Dashboard = () => {
         setShowResult(true);
       }, 100);
       
-      toast.success('App generated successfully!');
+      // Save to database
+      if (user) {
+        const { data: savedProject, error } = await supabase
+          .from('projects')
+          .insert({
+            user_id: user.id,
+            name: data.name || 'Untitled App',
+            description: prompt,
+            app_data: {
+              ...data,
+              screens: data.screens || [],
+              components: data.components || []
+            }
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Save error:', error);
+          toast.error('App generated but failed to save');
+        } else if (savedProject) {
+          toast.success('App generated and saved!');
+          // Redirect to project page
+          setTimeout(() => {
+            navigate(`/project/${savedProject.id}`);
+          }, 1500);
+        }
+      }
     } catch (error) {
       console.error('Generation error:', error);
       toast.error('Failed to generate app. Please try again.');
@@ -88,34 +114,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleSave = async () => {
-    if (!generatedApp || !user) return;
-
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .insert({
-          user_id: user.id,
-          name: generatedApp.name || 'Untitled App',
-          description: prompt,
-          app_data: {
-            ...generatedApp,
-            screens: generatedApp.screens || [],
-            components: generatedApp.components || []
-          }
-        });
-
-      if (error) throw error;
-
-      toast.success('Project saved successfully!');
-    } catch (error) {
-      console.error('Save error:', error);
-      toast.error('Failed to save project');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -250,22 +248,6 @@ const Dashboard = () => {
                       </>
                     )}
                   </Button>
-
-                  {generatedApp && !generating && (
-                    <Button
-                      onClick={handleSave}
-                      disabled={saving}
-                      variant="outline"
-                      size="lg"
-                      className="h-12 border-primary/20 hover:bg-primary/10"
-                    >
-                      {saving ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Save className="h-5 w-5" />
-                      )}
-                    </Button>
-                  )}
                 </div>
 
                 {/* Result Stats */}

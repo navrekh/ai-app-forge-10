@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhoneMockup } from '@/components/PhoneMockup';
-import { ArrowLeft, Calendar, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Code } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Project {
@@ -64,13 +64,6 @@ const PreviewApp = () => {
 
   if (!project) return null;
 
-  const handleDownloadAPK = () => {
-    toast.info('APK download coming soon! This feature will generate Android builds.');
-  };
-
-  const handleDownloadIPA = () => {
-    toast.info('IPA download coming soon! This feature will generate iOS builds.');
-  };
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -100,27 +93,35 @@ const PreviewApp = () => {
                   Created {new Date(project.created_at).toLocaleDateString()}
                 </div>
                 <div className="flex flex-col gap-3 pt-4 border-t">
-                  <p className="text-sm font-medium">Download App</p>
+                  <p className="text-sm font-medium">Export Options</p>
                   <div className="flex gap-2">
                     <Button
-                      onClick={handleDownloadAPK}
+                      disabled
                       variant="outline"
                       className="flex-1"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Android APK
+                      Download APK
                     </Button>
                     <Button
-                      onClick={handleDownloadIPA}
+                      disabled
                       variant="outline"
                       className="flex-1"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      iOS IPA
+                      Download IPA
                     </Button>
                   </div>
+                  <Button
+                    disabled
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Code className="mr-2 h-4 w-4" />
+                    View Code
+                  </Button>
                   <p className="text-xs text-muted-foreground">
-                    Downloads will generate native mobile builds
+                    Export features coming soon
                   </p>
                 </div>
               </CardContent>

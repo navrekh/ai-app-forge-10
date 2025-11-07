@@ -121,7 +121,7 @@ const Projects = () => {
               <Card 
                 key={project.id} 
                 className="shadow-card hover:shadow-glow transition-all cursor-pointer group"
-                onClick={() => navigate(`/preview/${project.id}`)}
+                onClick={() => navigate(`/project/${project.id}`)}
               >
                 <CardHeader>
                   <CardTitle className="flex items-start justify-between">
