@@ -2,12 +2,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
-import { Smartphone, Zap, Shield, Sparkles } from 'lucide-react';
+import { Smartphone, Zap, Shield, Sparkles, AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const Index = () => {
   const navigate = useNavigate();
   const [user, loading] = useAuthState(auth);
+  const hasFirebaseConfig = import.meta.env.VITE_FIREBASE_API_KEY && import.meta.env.VITE_FIREBASE_PROJECT_ID;
 
   useEffect(() => {
     if (!loading && user) {
@@ -34,6 +36,23 @@ const Index = () => {
       </header>
 
       <main>
+        {!hasFirebaseConfig && (
+          <div className="container mx-auto px-4 pt-8">
+            <Alert className="max-w-4xl mx-auto border-primary/50 bg-primary/5">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              <AlertTitle className="text-lg font-semibold">Setup Required</AlertTitle>
+              <AlertDescription className="mt-2">
+                <p className="mb-3">Firebase credentials are not configured. You have two options:</p>
+                <div className="space-y-2 text-sm">
+                  <p><strong>Option 1 (Recommended):</strong> Switch to Lovable Cloud - simpler setup, no external accounts needed</p>
+                  <p><strong>Option 2:</strong> Configure Firebase credentials in your project settings</p>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">Ask me: "Switch to Lovable Cloud" or "Help me set up Firebase"</p>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+        
         <section className="container mx-auto px-4 py-20 text-center">
           <div className="mx-auto max-w-4xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
