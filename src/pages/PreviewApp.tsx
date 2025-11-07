@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhoneMockup } from '@/components/PhoneMockup';
 import { ArrowLeft, Calendar, Download, Code } from 'lucide-react';
 import { toast } from 'sonner';
+import { ComponentEditor } from '@/components/ComponentEditor';
+import { AddComponentDialog } from '@/components/AddComponentDialog';
+import { EditableComponent } from '@/components/EditableComponent';
 
 interface Project {
   name: string;
@@ -19,6 +22,8 @@ const PreviewApp = () => {
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editableComponents, setEditableComponents] = useState<any[]>([]);
+  const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -35,6 +40,11 @@ const PreviewApp = () => {
 
         if (data) {
           setProject(data);
+          // Initialize editable components from app_data
+          const appData = data.app_data as any;
+          if (appData?.editableComponents) {
+            setEditableComponents(appData.editableComponents);
+          }
         } else {
           toast.error('Project not found');
           navigate('/dashboard');
@@ -64,6 +74,43 @@ const PreviewApp = () => {
 
   if (!project) return null;
 
+  const selectedComponent = editableComponents.find(c => c.id === selectedComponentId);
+
+  const handleComponentUpdate = (updates: any) => {
+    setEditableComponents(prev =>
+      prev.map(comp =>
+        comp.id === selectedComponentId ? { ...comp, ...updates } : comp
+      )
+    );
+  };
+
+  const handleAddComponent = (newComponent: any) => {
+    setEditableComponents(prev => [...prev, newComponent]);
+    toast.success('Component added');
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      const appData = project.app_data as any;
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          app_data: {
+            ...appData,
+            editableComponents: editableComponents,
+          },
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Changes saved successfully');
+    } catch (error) {
+      console.error('Error saving:', error);
+      toast.error('Failed to save changes');
+    }
+  };
+
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -77,8 +124,8 @@ const PreviewApp = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div className="space-y-6">
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-1">
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle>{project.name}</CardTitle>
@@ -161,18 +208,41 @@ const PreviewApp = () => {
             )}
           </div>
 
-          <div className="flex items-start justify-center sticky top-8">
+          {/* Phone Preview */}
+          <div className="flex items-start justify-center sticky top-8 lg:col-span-1">
             <PhoneMockup>
-              <div className="h-full p-6 overflow-y-auto">
+              <div className="h-full p-6 overflow-y-auto space-y-4">
                 <h2 className="text-2xl font-bold mb-4">{project.name}</h2>
+                
+                {/* Editable Components */}
+                {editableComponents.map((component) => (
+                  <EditableComponent
+                    key={component.id}
+                    component={component}
+                    isSelected={selectedComponentId === component.id}
+                    onClick={() => setSelectedComponentId(component.id)}
+                  />
+                ))}
+
+                {/* Original Screens */}
                 {project.app_data?.screens?.map((screen: any, index: number) => (
-                  <div key={index} className="mb-6 p-4 border rounded-lg">
+                  <div key={index} className="mb-6 p-4 border rounded-lg opacity-60">
                     <h3 className="font-semibold mb-2">{screen.name}</h3>
                     <p className="text-sm text-muted-foreground">{screen.description}</p>
                   </div>
                 ))}
               </div>
             </PhoneMockup>
+          </div>
+
+          {/* Editor Panel */}
+          <div className="space-y-6 lg:col-span-1">
+            <AddComponentDialog onAdd={handleAddComponent} />
+            <ComponentEditor
+              selectedComponent={selectedComponent}
+              onUpdate={handleComponentUpdate}
+              onSave={handleSaveChanges}
+            />
           </div>
         </div>
       </main>
