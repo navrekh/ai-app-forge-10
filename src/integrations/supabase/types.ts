@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_history: {
+        Row: {
+          created_at: string
+          download_url: string | null
+          id: string
+          prompt: string
+          user_id: string | null
+          zip_base64: string | null
+        }
+        Insert: {
+          created_at?: string
+          download_url?: string | null
+          id?: string
+          prompt: string
+          user_id?: string | null
+          zip_base64?: string | null
+        }
+        Update: {
+          created_at?: string
+          download_url?: string | null
+          id?: string
+          prompt?: string
+          user_id?: string | null
+          zip_base64?: string | null
+        }
+        Relationships: []
+      }
       builds: {
         Row: {
           created_at: string

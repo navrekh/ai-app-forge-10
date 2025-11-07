@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { PhoneMockup } from "@/components/PhoneMockup";
-import { Loader2, Download, Eye, RefreshCw, Clock } from "lucide-react";
+import { Loader2, Download, Eye, RefreshCw, Clock, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { HistoryPanel } from "@/components/HistoryPanel";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RecentPrompt {
   prompt: string;
@@ -28,6 +30,9 @@ const Dashboard = () => {
   const [recentPrompts, setRecentPrompts] = useState<RecentPrompt[]>([]);
   const [showApiModal, setShowApiModal] = useState(false);
   const [showShakeError, setShowShakeError] = useState(false);
+  const [currentAppId, setCurrentAppId] = useState<string | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
 
   const charLimit = 1000;
   const charCount = prompt.length;
@@ -106,6 +111,29 @@ const Dashboard = () => {
       if (data.success) {
         setApiResponse(data);
         saveRecentPrompt(trimmedPrompt);
+        
+        // Save to database
+        try {
+          const { data: session } = await supabase.auth.getSession();
+          const { data: insertData, error: insertError } = await supabase
+            .from('app_history')
+            .insert({
+              prompt: trimmedPrompt,
+              download_url: data.download_url || null,
+              zip_base64: data.zip_base64 || null,
+              user_id: session?.session?.user?.id || null,
+            })
+            .select()
+            .single();
+
+          if (!insertError && insertData) {
+            setCurrentAppId(insertData.id);
+            setHistoryKey(prev => prev + 1); // Refresh history panel
+          }
+        } catch (dbError) {
+          console.error('Failed to save to database:', dbError);
+        }
+        
         toast.success("Your app has been generated!");
       } else {
         throw new Error('Generation failed');
@@ -157,6 +185,17 @@ const Dashboard = () => {
   const handleNewGeneration = () => {
     setPrompt('');
     setApiResponse(null);
+    setCurrentAppId(null);
+    setCopiedUrl(false);
+  };
+
+  const handleCopyShareUrl = () => {
+    if (!currentAppId) return;
+    const shareUrl = `${window.location.origin}/shared/${currentAppId}`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopiedUrl(true);
+    toast.success('Share link copied to clipboard!');
+    setTimeout(() => setCopiedUrl(false), 2000);
   };
 
   const handleLoadPrompt = (promptText: string) => {
@@ -203,9 +242,9 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Panel - Form */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:col-span-2">{/* Form section */}
               <div className="bg-card shadow-card rounded-xl p-8 space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">
@@ -270,10 +309,13 @@ const Dashboard = () => {
                   </div>
                 </div>
               )}
+
+              {/* History Panel */}
+              <HistoryPanel key={historyKey} />
             </div>
 
             {/* Right Panel - Phone Preview */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:col-span-1">
               <div className="bg-card shadow-card rounded-xl p-8 flex justify-center">
                 <PhoneMockup>
                   {isGenerating ? (
@@ -329,6 +371,27 @@ const Dashboard = () => {
                   Download Code (ZIP)
                 </Button>
 
+                {currentAppId && (
+                  <Button 
+                    onClick={handleCopyShareUrl}
+                    size="lg"
+                    className="w-full"
+                    variant="outline"
+                  >
+                    {copiedUrl ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        Link Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy Share Link
+                      </>
+                    )}
+                  </Button>
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
                     onClick={() => setShowApiModal(true)}
@@ -336,7 +399,7 @@ const Dashboard = () => {
                     variant="outline"
                   >
                     <Eye className="mr-2 h-4 w-4" />
-                    View API Response
+                    View JSON
                   </Button>
 
                   <Button 
@@ -345,7 +408,7 @@ const Dashboard = () => {
                     variant="outline"
                   >
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    New Generation
+                    New
                   </Button>
                 </div>
               </div>
