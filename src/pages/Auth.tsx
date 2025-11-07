@@ -163,10 +163,18 @@ const Auth = () => {
   };
 
   if (view === 'forgot') {
-    return (
-      <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="mb-8 text-center">
+  return (
+    <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Home
+        </Button>
+        <div className="mb-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-4 shadow-glow">
               <Smartphone className="w-8 h-8 text-primary-foreground" />
             </div>
@@ -220,6 +228,14 @@ const Auth = () => {
   return (
     <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Home
+        </Button>
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-4 shadow-glow">
             <Smartphone className="w-8 h-8 text-primary-foreground" />
