@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const API_BASE = 'https://mobiledev-backend-680477926513.asia-south1.run.app';
 
@@ -18,6 +19,7 @@ interface DownloadAPKButtonProps {
 }
 
 export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonProps) => {
+  const { getAuthToken } = useAuth();
   const [building, setBuilding] = useState(false);
   const [buildId, setBuildId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('idle');
@@ -30,7 +32,15 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
 
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`${API_BASE}/build-status/${buildId}`);
+        const token = await getAuthToken();
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${API_BASE}/build-status/${buildId}`, { headers });
         
         if (!response.ok) {
           throw new Error(`Failed to check build status: ${response.statusText}`);
@@ -68,11 +78,17 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
       setStatus('pending');
       setErrorMessage(null);
       
+      const token = await getAuthToken();
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE}/build-apk`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ appHistoryId }),
       });
 

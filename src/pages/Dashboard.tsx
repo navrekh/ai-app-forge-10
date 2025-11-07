@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { DownloadAPKButton } from "@/components/DownloadAPKButton";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface RecentPrompt {
   prompt: string;
@@ -24,6 +26,8 @@ interface ApiResponse {
 }
 
 const Dashboard = () => {
+  const { user, logout, getAuthToken } = useAuth();
+  const navigate = useNavigate();
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
@@ -95,11 +99,17 @@ const Dashboard = () => {
     setApiResponse(null);
 
     try {
+      const token = await getAuthToken();
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE}/generate-app`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ prompt: trimmedPrompt }),
       });
 
@@ -215,17 +225,34 @@ const Dashboard = () => {
             </h1>
             <p className="text-sm text-muted-foreground mt-1">AI App Builder for React Native</p>
           </div>
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
-            apiStatus === 'online' 
-              ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
-              : apiStatus === 'offline'
-              ? 'bg-muted text-muted-foreground'
-              : 'bg-muted text-muted-foreground animate-pulse'
-          }`}>
-            <div className={`w-2 h-2 rounded-full ${
-              apiStatus === 'online' ? 'bg-green-500' : 'bg-muted-foreground'
-            }`} />
-            API: {apiStatus === 'checking' ? 'Checking...' : apiStatus === 'online' ? 'Online' : 'Offline'}
+          <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+              apiStatus === 'online' 
+                ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
+                : apiStatus === 'offline'
+                ? 'bg-muted text-muted-foreground'
+                : 'bg-muted text-muted-foreground animate-pulse'
+            }`}>
+              <div className={`w-2 h-2 rounded-full ${
+                apiStatus === 'online' ? 'bg-green-500' : 'bg-muted-foreground'
+              }`} />
+              API: {apiStatus === 'checking' ? 'Checking...' : apiStatus === 'online' ? 'Online' : 'Offline'}
+            </div>
+            {user && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">{user.email}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={async () => {
+                    await logout();
+                    navigate('/firebase-auth');
+                  }}
+                >
+                  Logout
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </header>

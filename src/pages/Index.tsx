@@ -1,26 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Smartphone, Zap, Shield, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     if (!loading && user) {
@@ -39,7 +25,7 @@ const Index = () => {
               </div>
               <h1 className="text-xl font-bold">MobileDev Builder</h1>
             </div>
-            <Button onClick={() => navigate('/auth')} variant="outline">
+            <Button onClick={() => navigate('/firebase-auth')} variant="outline">
               Get Started
             </Button>
           </div>
@@ -69,12 +55,12 @@ const Index = () => {
               <Button 
                 size="lg" 
                 className="gradient-primary shadow-glow text-lg"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/firebase-auth')}
               >
                 <Smartphone className="mr-2 h-5 w-5" />
                 Start Creating
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/auth')}>
+              <Button size="lg" variant="outline" onClick={() => navigate('/firebase-auth')}>
                 Sign In
               </Button>
             </div>
