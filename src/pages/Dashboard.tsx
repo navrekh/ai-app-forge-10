@@ -2,11 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { PhoneMockup } from '@/components/PhoneMockup';
 import { toast } from 'sonner';
-import { Smartphone, LogOut, Wand2, Save, FolderOpen, Loader2 } from 'lucide-react';
+import { Smartphone, LogOut, Wand2, Save, FolderOpen, Loader2, Sparkles, Zap, Heart, ShoppingBag, MessageSquare, TrendingUp } from 'lucide-react';
+
+const EXAMPLE_PROMPTS = [
+  { icon: Heart, label: 'Fitness Tracker', prompt: 'A fitness tracker app with workout logging, progress charts, and meal planning' },
+  { icon: ShoppingBag, label: 'Food Delivery', prompt: 'A food delivery app with restaurant menus, cart management, and order tracking' },
+  { icon: MessageSquare, label: 'Chat App', prompt: 'A messaging app with real-time chat, media sharing, and group conversations' },
+  { icon: TrendingUp, label: 'Finance Manager', prompt: 'A personal finance app with expense tracking, budgets, and financial insights' },
+];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -16,6 +23,7 @@ const Dashboard = () => {
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [generatedApp, setGeneratedApp] = useState<any>(null);
+  const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -45,6 +53,7 @@ const Dashboard = () => {
 
     setGenerating(true);
     setGeneratedApp(null);
+    setShowResult(false);
 
     try {
       const response = await fetch(
@@ -64,6 +73,12 @@ const Dashboard = () => {
 
       const data = await response.json();
       setGeneratedApp(data);
+      
+      // Delay to show the fade-in animation
+      setTimeout(() => {
+        setShowResult(true);
+      }, 100);
+      
       toast.success('App generated successfully!');
     } catch (error) {
       console.error('Generation error:', error);
@@ -94,8 +109,6 @@ const Dashboard = () => {
       if (error) throw error;
 
       toast.success('Project saved successfully!');
-      setPrompt('');
-      setGeneratedApp(null);
     } catch (error) {
       console.error('Save error:', error);
       toast.error('Failed to save project');
@@ -114,11 +127,15 @@ const Dashboard = () => {
     }
   };
 
+  const handleExampleClick = (examplePrompt: string) => {
+    setPrompt(examplePrompt);
+  };
+
   if (loading || !user) {
     return (
       <div className="min-h-screen gradient-hero flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
           <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -126,8 +143,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-hero">
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Header */}
+      <header className="border-b border-border/50 bg-card/30 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -136,175 +154,215 @@ const Dashboard = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold">MobileDev Builder</h1>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
+                size="sm"
                 onClick={() => navigate('/projects')}
               >
                 <FolderOpen className="mr-2 h-4 w-4" />
-                My Projects
+                Projects
               </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-6 text-center">
-          <h2 className="text-3xl font-bold mb-2">Generate Your Mobile App</h2>
-          <p className="text-muted-foreground">
-            Describe your app idea and watch AI create it instantly
-          </p>
-        </div>
+        <div className="min-h-[calc(100vh-12rem)] flex items-center">
+          <div className="w-full grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Side - Prompt Card */}
+            <div className="space-y-6 animate-fade-in">
+              <div>
+                <h2 className="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                  Build Your Dream App
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  Describe your idea and watch AI create it instantly
+                </p>
+              </div>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Generation Form */}
-          <div className="space-y-6">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wand2 className="h-5 w-5 text-primary" />
-                  App Idea
-                </CardTitle>
-                <CardDescription>
-                  Describe what kind of mobile app you want to build
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="prompt" className="text-sm font-medium">
-                    What's your app idea?
-                  </label>
+              {/* Glassmorphism Card */}
+              <Card className="border-border/50 bg-card/30 backdrop-blur-xl shadow-2xl p-6 space-y-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span>What would you like to build?</span>
+                  </div>
                   <Textarea
-                    id="prompt"
-                    placeholder="Example: A fitness tracker app with workout logging, progress charts, meal planning, and social sharing features..."
+                    placeholder="Describe your app idea in detail... Include features, screens, and functionality you want."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    rows={10}
-                    className="resize-none"
+                    rows={6}
+                    className="resize-none text-base bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
                     disabled={generating}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Be specific about features, screens, and functionality
-                  </p>
                 </div>
 
-                <div className="flex gap-2">
+                {/* Example Suggestions */}
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Zap className="h-3 w-3" />
+                    Try these examples
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {EXAMPLE_PROMPTS.map((example, index) => {
+                      const Icon = example.icon;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleExampleClick(example.prompt)}
+                          disabled={generating}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Icon className="h-3 w-3" />
+                          {example.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
                   <Button
                     onClick={handleGenerate}
                     disabled={generating || !prompt.trim()}
-                    className="flex-1 gradient-primary"
+                    className="flex-1 h-12 gradient-primary shadow-glow text-base font-semibold"
                     size="lg"
                   >
                     {generating ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         Generating...
                       </>
                     ) : (
                       <>
-                        <Wand2 className="mr-2 h-4 w-4" />
+                        <Wand2 className="mr-2 h-5 w-5" />
                         Generate App
                       </>
                     )}
                   </Button>
 
-                  {generatedApp && (
+                  {generatedApp && !generating && (
                     <Button
                       onClick={handleSave}
                       disabled={saving}
                       variant="outline"
                       size="lg"
+                      className="h-12 border-primary/20 hover:bg-primary/10"
                     >
                       {saving ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <>
-                          <Save className="mr-2 h-4 w-4" />
-                          Save
-                        </>
+                        <Save className="h-5 w-5" />
                       )}
                     </Button>
                   )}
                 </div>
-              </CardContent>
-            </Card>
 
-            {generatedApp && (
-              <Card className="shadow-card">
-                <CardHeader>
-                  <CardTitle>Generated Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">App Name</p>
-                      <p className="text-lg font-semibold">{generatedApp.name}</p>
-                    </div>
+                {/* Result Stats */}
+                {generatedApp && !generating && (
+                  <div className="pt-4 border-t border-border/50 animate-fade-in">
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Screens</p>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Screens Generated</p>
                         <p className="text-2xl font-bold text-primary">
                           {generatedApp.screens?.length || 0}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Components</p>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Components</p>
                         <p className="text-2xl font-bold text-primary">
                           {generatedApp.components?.length || 0}
                         </p>
                       </div>
                     </div>
                   </div>
-                </CardContent>
+                )}
               </Card>
-            )}
-          </div>
+            </div>
 
-          {/* Phone Preview */}
-          <div className="flex items-start justify-center lg:sticky lg:top-24">
-            <PhoneMockup>
-              {generating ? (
-                <div className="h-full flex items-center justify-center p-6">
-                  <div className="text-center">
-                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary mb-4" />
-                    <p className="text-sm text-muted-foreground">
-                      Generating your app...
-                    </p>
-                  </div>
-                </div>
-              ) : generatedApp ? (
-                <div className="h-full p-6 overflow-y-auto">
-                  <h2 className="text-2xl font-bold mb-4">{generatedApp.name}</h2>
-                  <div className="space-y-4">
-                    {generatedApp.screens?.map((screen: any, index: number) => (
-                      <div key={index} className="p-4 border rounded-lg bg-card/50">
-                        <h3 className="font-semibold mb-2">{screen.name}</h3>
-                        <p className="text-sm text-muted-foreground">{screen.description}</p>
+            {/* Right Side - Phone Preview */}
+            <div className="flex items-center justify-center animate-scale-in">
+              <div className="relative">
+                {/* Glow effect behind phone */}
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl scale-110 opacity-50" />
+                
+                <PhoneMockup>
+                  {generating ? (
+                    <div className="h-full flex items-center justify-center p-6 relative overflow-hidden">
+                      {/* Animated background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10 animate-pulse" />
+                      
+                      <div className="relative text-center z-10">
+                        <div className="relative mb-6">
+                          <Loader2 className="mx-auto h-16 w-16 animate-spin text-primary" />
+                          <div className="absolute inset-0 animate-ping opacity-20">
+                            <Loader2 className="mx-auto h-16 w-16 text-primary" />
+                          </div>
+                        </div>
+                        <p className="text-lg font-semibold mb-2">Generating Your App</p>
+                        <p className="text-sm text-muted-foreground">
+                          Creating screens and components...
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="h-full flex items-center justify-center p-6 text-center">
-                  <div>
-                    <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                      <Smartphone className="h-8 w-8 text-muted-foreground" />
                     </div>
-                    <p className="text-muted-foreground">
-                      Your generated app will appear here
-                    </p>
-                  </div>
-                </div>
-              )}
-            </PhoneMockup>
+                  ) : generatedApp && showResult ? (
+                    <div className="h-full p-6 overflow-y-auto animate-fade-in">
+                      <div className="mb-4 pb-4 border-b border-border/50">
+                        <h2 className="text-2xl font-bold mb-1">{generatedApp.name}</h2>
+                        <p className="text-xs text-muted-foreground">
+                          {generatedApp.screens?.length || 0} screens • {generatedApp.components?.length || 0} components
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {generatedApp.screens?.map((screen: any, index: number) => (
+                          <div 
+                            key={index} 
+                            className="p-4 rounded-xl bg-gradient-to-br from-card/50 to-card/30 border border-border/50 hover:shadow-md transition-all"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
+                                {index + 1}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold mb-1 text-sm">{screen.name}</h3>
+                                <p className="text-xs text-muted-foreground line-clamp-2">
+                                  {screen.description}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-full flex items-center justify-center p-6 text-center">
+                      <div className="space-y-4">
+                        <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                          <Smartphone className="h-10 w-10 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold mb-1">Ready to Generate</p>
+                          <p className="text-sm text-muted-foreground">
+                            Your app preview will appear here
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </PhoneMockup>
+              </div>
+            </div>
           </div>
         </div>
       </main>
