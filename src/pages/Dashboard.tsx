@@ -1,224 +1,373 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { PhoneMockup } from '@/components/PhoneMockup';
-import { toast } from 'sonner';
-import { Smartphone, Wand2, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { PhoneMockup } from "@/components/PhoneMockup";
+import { Loader2, Download, Eye, RefreshCw, Clock } from "lucide-react";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+interface RecentPrompt {
+  prompt: string;
+  timestamp: number;
+}
+
+interface ApiResponse {
+  success?: boolean;
+  stored?: boolean;
+  download_url?: string;
+  file?: string;
+  zip_base64?: string;
+  error?: string;
+}
 
 const Dashboard = () => {
   const [prompt, setPrompt] = useState('');
-  const [generating, setGenerating] = useState(false);
-  const [generatedApp, setGeneratedApp] = useState<any>(null);
-  const [showResult, setShowResult] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [recentPrompts, setRecentPrompts] = useState<RecentPrompt[]>([]);
+  const [showApiModal, setShowApiModal] = useState(false);
+  const [showShakeError, setShowShakeError] = useState(false);
+
+  const charLimit = 1000;
+  const charCount = prompt.length;
+  const API_BASE = 'https://mobiledev-backend-680477926513.asia-south1.run.app';
+
+  // Load recent prompts from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('recentPrompts');
+    if (stored) {
+      try {
+        setRecentPrompts(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse recent prompts:', e);
+      }
+    }
+  }, []);
+
+  // Check API health on mount
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/health`);
+        const data = await response.json();
+        setApiStatus(data.status === 'ok' ? 'online' : 'offline');
+      } catch (error) {
+        console.error('Health check failed:', error);
+        setApiStatus('offline');
+      }
+    };
+    checkHealth();
+  }, []);
+
+  const saveRecentPrompt = (promptText: string) => {
+    const newPrompt: RecentPrompt = {
+      prompt: promptText,
+      timestamp: Date.now(),
+    };
+    const updated = [newPrompt, ...recentPrompts.filter(p => p.prompt !== promptText)].slice(0, 5);
+    setRecentPrompts(updated);
+    localStorage.setItem('recentPrompts', JSON.stringify(updated));
+  };
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast.error('Please describe your app idea');
+    const trimmedPrompt = prompt.trim();
+    
+    if (!trimmedPrompt) {
+      setShowShakeError(true);
+      setTimeout(() => setShowShakeError(false), 500);
+      toast.error("Please describe your app.");
       return;
     }
 
-    setGenerating(true);
-    setGeneratedApp(null);
-    setShowResult(false);
+    if (trimmedPrompt.length > charLimit) {
+      toast.error(`Prompt must be ${charLimit} characters or less.`);
+      return;
+    }
+
+    setIsGenerating(true);
+    setApiResponse(null);
 
     try {
-      const response = await fetch(
-        'https://ai-appgen-api-680477926513.asia-south1.run.app/generate',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ prompt }),
-        }
-      );
+      const response = await fetch(`${API_BASE}/generate-app`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: trimmedPrompt }),
+      });
 
-      if (!response.ok) {
-        toast.error('Error generating app.');
-        return;
+      const data: ApiResponse = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      const data = await response.json();
-      
-      if (data.success !== true) {
-        toast.error('Error generating app.');
-        return;
+      if (data.success) {
+        setApiResponse(data);
+        saveRecentPrompt(trimmedPrompt);
+        toast.success("Your app has been generated!");
+      } else {
+        throw new Error('Generation failed');
       }
-
-      toast.success('App generated successfully!');
-      setGeneratedApp(data);
-      
-      // Delay to show the fade-in animation
-      setTimeout(() => {
-        setShowResult(true);
-      }, 100);
     } catch (error) {
       console.error('Generation error:', error);
-      toast.error('Error generating app.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate app';
+      toast.error(`Generation failed: ${errorMessage}`, {
+        action: {
+          label: 'Retry',
+          onClick: handleGenerate,
+        },
+      });
     } finally {
-      setGenerating(false);
+      setIsGenerating(false);
     }
   };
 
+  const handleDownload = () => {
+    if (!apiResponse) return;
+
+    if (apiResponse.download_url) {
+      window.open(apiResponse.download_url, '_blank');
+    } else if (apiResponse.zip_base64 && apiResponse.file) {
+      // Fallback: decode base64 and trigger download
+      try {
+        const byteCharacters = atob(apiResponse.zip_base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/zip' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = apiResponse.file;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Download failed:', error);
+        toast.error("Could not decode the ZIP file.");
+      }
+    }
+  };
+
+  const handleNewGeneration = () => {
+    setPrompt('');
+    setApiResponse(null);
+  };
+
+  const handleLoadPrompt = (promptText: string) => {
+    setPrompt(promptText);
+    setApiResponse(null);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen gradient-hero">
       {/* Header */}
-      <header className="border-b border-border/50 sticky top-0 z-50 bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-primary shadow-glow">
-              <Smartphone className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold">MobileDev Builder</h1>
+      <header className="w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold gradient-primary bg-clip-text text-transparent">
+              MobileDev
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">AI App Builder for React Native</p>
+          </div>
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+            apiStatus === 'online' 
+              ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
+              : apiStatus === 'offline'
+              ? 'bg-muted text-muted-foreground'
+              : 'bg-muted text-muted-foreground animate-pulse'
+          }`}>
+            <div className={`w-2 h-2 rounded-full ${
+              apiStatus === 'online' ? 'bg-green-500' : 'bg-muted-foreground'
+            }`} />
+            API: {apiStatus === 'checking' ? 'Checking...' : apiStatus === 'online' ? 'Online' : 'Offline'}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12 lg:py-20">
-        <div className="max-w-5xl mx-auto space-y-12">
-          {/* Title */}
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl lg:text-5xl font-bold">
-              Build Your Dream App
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Text */}
+          <div className="text-center mb-12 space-y-3">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+              Generate production-ready React Native apps from a prompt.
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Describe your idea and watch AI create it instantly
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              We ship a full Expo project (screens, navigation, assets) — downloadable as a ZIP.
             </p>
           </div>
 
-          {/* Phone Preview */}
-          <div className="flex justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5 blur-3xl scale-110" />
-              
-              <PhoneMockup>
-                {generating ? (
-                  <div className="h-full flex items-center justify-center p-8 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 animate-pulse" />
-                    
-                    <div className="relative text-center z-10">
-                      <div className="relative mb-8">
-                        <Loader2 className="mx-auto h-20 w-20 animate-spin text-primary" />
-                        <div className="absolute inset-0 animate-ping opacity-20">
-                          <Loader2 className="mx-auto h-20 w-20 text-primary" />
-                        </div>
-                      </div>
-                      <p className="text-xl font-semibold mb-2">Generating Your App</p>
-                      <p className="text-sm text-muted-foreground">
-                        Creating screens and components...
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Left Panel - Form */}
+            <div className="space-y-6">
+              <div className="bg-card shadow-card rounded-xl p-8 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">
+                    Describe your app
+                  </label>
+                  <Textarea
+                    placeholder="Build me a fitness tracking app UI with workout logging, progress charts, and user profiles..."
+                    value={prompt}
+                    onChange={(e) => {
+                      if (e.target.value.length <= charLimit) {
+                        setPrompt(e.target.value);
+                      }
+                    }}
+                    className={`min-h-[200px] text-base transition-all ${
+                      showShakeError ? 'animate-[shake_0.5s_ease-in-out] border-destructive' : ''
+                    }`}
+                  />
+                  <div className="flex justify-between items-center text-xs">
+                    <p className="text-muted-foreground">
+                      We'll generate a full Expo project and give you a download link.
+                    </p>
+                    <p className={`font-medium ${charCount > charLimit * 0.9 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {charCount} / {charLimit}
+                    </p>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !prompt.trim() || apiStatus === 'offline'}
+                  size="lg"
+                  className="w-full"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Generating your app...
+                    </>
+                  ) : (
+                    'Generate App'
+                  )}
+                </Button>
+              </div>
+
+              {/* Recent Prompts */}
+              {recentPrompts.length > 0 && (
+                <div className="bg-card shadow-card rounded-xl p-6 space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Recent prompts
+                  </h3>
+                  <div className="space-y-2">
+                    {recentPrompts.map((recent, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleLoadPrompt(recent.prompt)}
+                        className="w-full text-left p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-sm text-foreground truncate"
+                      >
+                        {recent.prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Panel - Phone Preview */}
+            <div className="space-y-6">
+              <div className="bg-card shadow-card rounded-xl p-8 flex justify-center">
+                <PhoneMockup>
+                  {isGenerating ? (
+                    <div className="flex flex-col items-center justify-center h-full space-y-4 p-6">
+                      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                      <p className="text-sm text-muted-foreground text-center">
+                        Generating your app…
                       </p>
                     </div>
-                  </div>
-                ) : generatedApp && showResult ? (
-                  <div className="h-full p-6 overflow-y-auto animate-fade-in">
-                    <div className="mb-6 pb-4 border-b border-border/50">
-                      <h2 className="text-2xl font-bold mb-2">{generatedApp.name}</h2>
-                      <p className="text-sm text-muted-foreground">
-                        {generatedApp.screens?.length || 0} screens • {generatedApp.components?.length || 0} components
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {generatedApp.screens?.map((screen: any, index: number) => (
-                        <div 
-                          key={index} 
-                          className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 hover:shadow-md transition-all"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-lg">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold mb-1">{screen.name}</h3>
-                              <p className="text-sm text-muted-foreground line-clamp-2">
-                                {screen.description}
-                              </p>
-                            </div>
-                          </div>
+                  ) : apiResponse?.success ? (
+                    <div className="h-full overflow-y-auto p-6 space-y-6">
+                      <div className="text-center space-y-2">
+                        <div className="w-12 h-12 bg-primary rounded-xl mx-auto flex items-center justify-center text-primary-foreground font-bold text-xl">
+                          A
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="h-full flex items-center justify-center p-8 text-center">
-                    <div className="space-y-6">
-                      <div className="mx-auto w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center shadow-lg">
-                        <Smartphone className="h-12 w-12 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-lg font-semibold mb-2">Ready to Generate</p>
-                        <p className="text-sm text-muted-foreground">
-                          Your app preview will appear here
+                        <h2 className="text-lg font-bold text-foreground">
+                          {prompt.split(' ').slice(0, 4).join(' ')}...
+                        </h2>
+                        <p className="text-xs text-muted-foreground">
+                          React Native App
                         </p>
                       </div>
+                      
+                      <div className="space-y-3">
+                        <div className="bg-muted/50 rounded-lg p-4 text-center">
+                          <p className="text-xs font-medium text-foreground">Home</p>
+                        </div>
+                        <div className="bg-muted/30 rounded-lg p-4 text-center">
+                          <p className="text-xs font-medium text-muted-foreground">Details</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </PhoneMockup>
+                  ) : (
+                    <div className="flex items-center justify-center h-full p-6">
+                      <p className="text-sm text-muted-foreground text-center">
+                        Your app preview will appear here after generation.
+                      </p>
+                    </div>
+                  )}
+                </PhoneMockup>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleDownload}
+                  disabled={!apiResponse?.success}
+                  size="lg"
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Code (ZIP)
+                </Button>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    onClick={() => setShowApiModal(true)}
+                    disabled={!apiResponse}
+                    variant="outline"
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    View API Response
+                  </Button>
+
+                  <Button 
+                    onClick={handleNewGeneration}
+                    disabled={!apiResponse}
+                    variant="outline"
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    New Generation
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Disabled Action Buttons */}
-          <div className="max-w-[375px] mx-auto space-y-3">
-            <div className="flex gap-3">
-              <Button
-                disabled
-                variant="outline"
-                className="flex-1 h-11"
-              >
-                Download APK
-              </Button>
-              <Button
-                disabled
-                variant="outline"
-                className="flex-1 h-11"
-              >
-                Download IPA
-              </Button>
-            </div>
-            <Button
-              disabled
-              variant="outline"
-              className="w-full h-11"
-            >
-              View Code
-            </Button>
-          </div>
-
-          {/* Prompt Input Section */}
-          <div className="max-w-2xl mx-auto space-y-6">
-            <Textarea
-              placeholder="Describe your app idea in detail... Include features, screens, and functionality you want."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={6}
-              className="resize-none text-base border-border/50 focus:border-primary transition-colors shadow-sm"
-              disabled={generating}
-            />
-
-            {/* Generate Button */}
-            <Button
-              onClick={handleGenerate}
-              disabled={generating || !prompt.trim()}
-              className="w-full h-14 gradient-primary shadow-glow text-lg font-semibold hover:scale-[1.02] transition-transform"
-              size="lg"
-            >
-              {generating ? (
-                <>
-                  <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Wand2 className="mr-2 h-6 w-6" />
-                  Generate App
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </main>
+
+      {/* API Response Modal */}
+      <Dialog open={showApiModal} onOpenChange={setShowApiModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>API Response</DialogTitle>
+            <DialogDescription>
+              Raw JSON response from the generation endpoint
+            </DialogDescription>
+          </DialogHeader>
+          <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto">
+            {JSON.stringify(apiResponse, null, 2)}
+          </pre>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
