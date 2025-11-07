@@ -67,10 +67,18 @@ const Dashboard = () => {
       );
 
       if (!response.ok) {
-        throw new Error('Generation failed');
+        toast.error('Error generating app.');
+        return;
       }
 
       const data = await response.json();
+      
+      if (data.success !== true) {
+        toast.error('Error generating app.');
+        return;
+      }
+
+      toast.success('App generated successfully!');
       setGeneratedApp(data);
       
       // Delay to show the fade-in animation
@@ -99,7 +107,6 @@ const Dashboard = () => {
           console.error('Save error:', error);
           toast.error('App generated but failed to save');
         } else if (savedProject) {
-          toast.success('App generated and saved!');
           // Redirect to project page
           setTimeout(() => {
             navigate(`/project/${savedProject.id}`);
@@ -108,7 +115,7 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Generation error:', error);
-      toast.error('Failed to generate app. Please try again.');
+      toast.error('Error generating app.');
     } finally {
       setGenerating(false);
     }
