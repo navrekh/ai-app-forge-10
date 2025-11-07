@@ -37,7 +37,7 @@ const Index = () => {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-glow">
                 <Smartphone className="h-5 w-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-bold">MobileDev</h1>
+              <h1 className="text-xl font-bold">MobileDev Builder</h1>
             </div>
             <Button onClick={() => navigate('/auth')} variant="outline">
               Get Started
@@ -119,7 +119,7 @@ const Index = () => {
 
       <footer className="border-t border-border/50 mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 MobileDev. Generate mobile apps with AI.</p>
+          <p>© 2025 MobileDev Builder. Generate mobile apps with AI.</p>
         </div>
       </footer>
     </div>

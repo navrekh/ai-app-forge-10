@@ -106,24 +106,30 @@ const CreateApp = () => {
           <div className="space-y-6">
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle>Create New App</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Wand2 className="h-5 w-5 text-primary" />
+                  Create New App
+                </CardTitle>
                 <CardDescription>
-                  Describe your mobile app and let AI generate it for you
+                  Describe your mobile app idea and our AI will generate a complete app structure for you
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="prompt" className="text-sm font-medium">
-                    App Description
+                    What kind of app do you want to build?
                   </label>
                   <Textarea
                     id="prompt"
-                    placeholder="Example: A fitness tracker app with workout logging, progress charts, and meal planning features..."
+                    placeholder="Example: A fitness tracker app with workout logging, progress charts, meal planning features, and social sharing capabilities..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    rows={6}
+                    rows={8}
                     className="resize-none"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Be specific! Include features, screens, and functionality you want.
+                  </p>
                 </div>
 
                 <Button

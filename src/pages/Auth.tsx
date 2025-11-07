@@ -178,10 +178,10 @@ const Auth = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-4 shadow-glow">
               <Smartphone className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-              MobileDev
-            </h1>
-            <p className="text-muted-foreground">Reset your password</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+            MobileDev Builder
+          </h1>
+          <p className="text-muted-foreground">Reset your password</p>
           </div>
 
           <Card className="shadow-card border-border/50">
@@ -241,7 +241,7 @@ const Auth = () => {
             <Smartphone className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            MobileDev
+            MobileDev Builder
           </h1>
           <p className="text-muted-foreground">Generate mobile apps with AI</p>
         </div>

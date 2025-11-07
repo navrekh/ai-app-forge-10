@@ -96,7 +96,7 @@ const Dashboard = () => {
                 <Smartphone className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">MobileDev</h1>
+                <h1 className="text-xl font-bold">MobileDev Builder</h1>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
               </div>
             </div>

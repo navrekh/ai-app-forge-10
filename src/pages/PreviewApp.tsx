@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhoneMockup } from '@/components/PhoneMockup';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Project {
@@ -64,6 +64,14 @@ const PreviewApp = () => {
 
   if (!project) return null;
 
+  const handleDownloadAPK = () => {
+    toast.info('APK download coming soon! This feature will generate Android builds.');
+  };
+
+  const handleDownloadIPA = () => {
+    toast.info('IPA download coming soon! This feature will generate iOS builds.');
+  };
+
   return (
     <div className="min-h-screen gradient-hero">
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
@@ -87,9 +95,33 @@ const PreviewApp = () => {
                   <p className="text-sm font-medium text-muted-foreground mb-1">Description</p>
                   <p className="text-sm">{project.description}</p>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground">
+                <div className="flex items-center text-sm text-muted-foreground mb-4">
                   <Calendar className="mr-2 h-4 w-4" />
                   Created {new Date(project.created_at).toLocaleDateString()}
+                </div>
+                <div className="flex flex-col gap-3 pt-4 border-t">
+                  <p className="text-sm font-medium">Download App</p>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleDownloadAPK}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Android APK
+                    </Button>
+                    <Button
+                      onClick={handleDownloadIPA}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      iOS IPA
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Downloads will generate native mobile builds
+                  </p>
                 </div>
               </CardContent>
             </Card>
