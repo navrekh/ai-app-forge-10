@@ -1,17 +1,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { PhoneMockup } from '@/components/PhoneMockup';
 import { toast } from 'sonner';
-import { Smartphone, Wand2, Loader2, Sparkles, Zap, Heart, ShoppingBag, MessageSquare, TrendingUp } from 'lucide-react';
-
-const EXAMPLE_PROMPTS = [
-  { icon: Heart, label: 'Fitness Tracker', prompt: 'A fitness tracker app with workout logging, progress charts, and meal planning' },
-  { icon: ShoppingBag, label: 'Food Delivery', prompt: 'A food delivery app with restaurant menus, cart management, and order tracking' },
-  { icon: MessageSquare, label: 'Chat App', prompt: 'A messaging app with real-time chat, media sharing, and group conversations' },
-  { icon: TrendingUp, label: 'Finance Manager', prompt: 'A personal finance app with expense tracking, budgets, and financial insights' },
-];
+import { Smartphone, Wand2, Loader2 } from 'lucide-react';
 
 const Dashboard = () => {
   const [prompt, setPrompt] = useState('');
@@ -68,33 +60,29 @@ const Dashboard = () => {
     }
   };
 
-  const handleExampleClick = (examplePrompt: string) => {
-    setPrompt(examplePrompt);
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="border-b border-border/50 sticky top-0 z-50 bg-background/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-glow">
-              <Smartphone className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-primary shadow-glow">
+              <Smartphone className="h-6 w-6 text-primary-foreground" />
             </div>
-            <h1 className="text-xl font-bold">MobileDev Builder</h1>
+            <h1 className="text-2xl font-bold">MobileDev Builder</h1>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <main className="container mx-auto px-4 py-12 lg:py-20">
+        <div className="max-w-5xl mx-auto space-y-12">
           {/* Title */}
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl lg:text-4xl font-bold">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl lg:text-5xl font-bold">
               Build Your Dream App
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-lg text-muted-foreground">
               Describe your idea and watch AI create it instantly
             </p>
           </div>
@@ -102,21 +90,21 @@ const Dashboard = () => {
           {/* Phone Preview */}
           <div className="flex justify-center">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl scale-110 opacity-50" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5 blur-3xl scale-110" />
               
               <PhoneMockup>
                 {generating ? (
-                  <div className="h-full flex items-center justify-center p-6 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10 animate-pulse" />
+                  <div className="h-full flex items-center justify-center p-8 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 animate-pulse" />
                     
                     <div className="relative text-center z-10">
-                      <div className="relative mb-6">
-                        <Loader2 className="mx-auto h-16 w-16 animate-spin text-primary" />
+                      <div className="relative mb-8">
+                        <Loader2 className="mx-auto h-20 w-20 animate-spin text-primary" />
                         <div className="absolute inset-0 animate-ping opacity-20">
-                          <Loader2 className="mx-auto h-16 w-16 text-primary" />
+                          <Loader2 className="mx-auto h-20 w-20 text-primary" />
                         </div>
                       </div>
-                      <p className="text-lg font-semibold mb-2">Generating Your App</p>
+                      <p className="text-xl font-semibold mb-2">Generating Your App</p>
                       <p className="text-sm text-muted-foreground">
                         Creating screens and components...
                       </p>
@@ -124,9 +112,9 @@ const Dashboard = () => {
                   </div>
                 ) : generatedApp && showResult ? (
                   <div className="h-full p-6 overflow-y-auto animate-fade-in">
-                    <div className="mb-4 pb-4 border-b border-border/50">
-                      <h2 className="text-2xl font-bold mb-1">{generatedApp.name}</h2>
-                      <p className="text-xs text-muted-foreground">
+                    <div className="mb-6 pb-4 border-b border-border/50">
+                      <h2 className="text-2xl font-bold mb-2">{generatedApp.name}</h2>
+                      <p className="text-sm text-muted-foreground">
                         {generatedApp.screens?.length || 0} screens • {generatedApp.components?.length || 0} components
                       </p>
                     </div>
@@ -135,15 +123,15 @@ const Dashboard = () => {
                       {generatedApp.screens?.map((screen: any, index: number) => (
                         <div 
                           key={index} 
-                          className="p-4 rounded-xl bg-gradient-to-br from-card/50 to-card/30 border border-border/50 hover:shadow-md transition-all"
+                          className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-border/50 hover:shadow-md transition-all"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-lg">
                               {index + 1}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold mb-1 text-sm">{screen.name}</h3>
-                              <p className="text-xs text-muted-foreground line-clamp-2">
+                              <h3 className="font-semibold mb-1">{screen.name}</h3>
+                              <p className="text-sm text-muted-foreground line-clamp-2">
                                 {screen.description}
                               </p>
                             </div>
@@ -153,13 +141,13 @@ const Dashboard = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="h-full flex items-center justify-center p-6 text-center">
-                    <div className="space-y-4">
-                      <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                        <Smartphone className="h-10 w-10 text-primary" />
+                  <div className="h-full flex items-center justify-center p-8 text-center">
+                    <div className="space-y-6">
+                      <div className="mx-auto w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center shadow-lg">
+                        <Smartphone className="h-12 w-12 text-primary" />
                       </div>
                       <div>
-                        <p className="font-semibold mb-1">Ready to Generate</p>
+                        <p className="text-lg font-semibold mb-2">Ready to Generate</p>
                         <p className="text-sm text-muted-foreground">
                           Your app preview will appear here
                         </p>
@@ -171,20 +159,20 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Disabled Action Buttons - Always Visible */}
+          {/* Disabled Action Buttons */}
           <div className="max-w-[375px] mx-auto space-y-3">
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <Button
                 disabled
                 variant="outline"
-                className="flex-1"
+                className="flex-1 h-11"
               >
                 Download APK
               </Button>
               <Button
                 disabled
                 variant="outline"
-                className="flex-1"
+                className="flex-1 h-11"
               >
                 Download IPA
               </Button>
@@ -192,93 +180,43 @@ const Dashboard = () => {
             <Button
               disabled
               variant="outline"
-              className="w-full"
+              className="w-full h-11"
             >
               View Code
             </Button>
           </div>
 
-          {/* Prompt Input Card */}
-          <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-xl p-6 space-y-6 max-w-2xl mx-auto">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span>What would you like to build?</span>
-              </div>
-              <Textarea
-                placeholder="Describe your app idea in detail... Include features, screens, and functionality you want."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                rows={6}
-                className="resize-none text-base bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
-                disabled={generating}
-              />
-            </div>
-
-            {/* Example Suggestions */}
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Zap className="h-3 w-3" />
-                Try these examples
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {EXAMPLE_PROMPTS.map((example, index) => {
-                  const Icon = example.icon;
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => handleExampleClick(example.prompt)}
-                      disabled={generating}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Icon className="h-3 w-3" />
-                      {example.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          {/* Prompt Input Section */}
+          <div className="max-w-2xl mx-auto space-y-6">
+            <Textarea
+              placeholder="Describe your app idea in detail... Include features, screens, and functionality you want."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={6}
+              className="resize-none text-base border-border/50 focus:border-primary transition-colors shadow-sm"
+              disabled={generating}
+            />
 
             {/* Generate Button */}
             <Button
               onClick={handleGenerate}
               disabled={generating || !prompt.trim()}
-              className="w-full h-12 gradient-primary shadow-glow text-base font-semibold"
+              className="w-full h-14 gradient-primary shadow-glow text-lg font-semibold hover:scale-[1.02] transition-transform"
               size="lg"
             >
               {generating ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  <Loader2 className="mr-2 h-6 w-6 animate-spin" />
                   Generating...
                 </>
               ) : (
                 <>
-                  <Wand2 className="mr-2 h-5 w-5" />
+                  <Wand2 className="mr-2 h-6 w-6" />
                   Generate App
                 </>
               )}
             </Button>
-
-            {/* Result Stats */}
-            {generatedApp && !generating && (
-              <div className="pt-4 border-t border-border/50 animate-fade-in">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Screens Generated</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {generatedApp.screens?.length || 0}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Components</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {generatedApp.components?.length || 0}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </Card>
+          </div>
         </div>
       </main>
     </div>
