@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,7 +25,7 @@ interface Stats {
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState('');
@@ -35,17 +34,34 @@ const UserProfile = () => {
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/firebase-auth');
-      return;
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate('/auth');
+        return;
+      }
+      setUser(session.user);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate('/auth');
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!user) return;
 
     const fetchProfile = async () => {
       try {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.uid)
+          .eq('id', user.id)
           .single();
 
         if (error) throw error;
@@ -66,19 +82,19 @@ const UserProfile = () => {
         const { count: generationsCount } = await supabase
           .from('app_history')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.uid);
+          .eq('user_id', user.id);
 
         // Get total builds
         const { count: buildsCount } = await supabase
           .from('builds')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.uid);
+          .eq('user_id', user.id);
 
         // Get successful builds
         const { count: successfulCount } = await supabase
           .from('builds')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.uid)
+          .eq('user_id', user.id)
           .eq('status', 'completed');
 
         setStats({
@@ -95,7 +111,7 @@ const UserProfile = () => {
 
     fetchProfile();
     fetchStats();
-  }, [user, navigate]);
+  }, [user]);
 
   const handleSaveProfile = async () => {
     if (!user || !profile) return;
@@ -105,7 +121,7 @@ const UserProfile = () => {
       const { error } = await supabase
         .from('profiles')
         .update({ full_name: fullName || null })
-        .eq('id', user.uid);
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -120,8 +136,8 @@ const UserProfile = () => {
   };
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/firebase-auth');
+    await supabase.auth.signOut();
+    navigate('/auth');
   };
 
   if (loading || !user || !profile) {

@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { DownloadAPKButton } from "@/components/DownloadAPKButton";
-import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_CONFIG, getAuthHeaders } from "@/config/backend";
 
@@ -27,7 +26,7 @@ interface ApiResponse {
 }
 
 const Dashboard = () => {
-  const { user, logout, getAuthToken } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -42,6 +41,19 @@ const Dashboard = () => {
 
   const charLimit = 1000;
   const charCount = prompt.length;
+
+  // Check auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Load recent prompts from localStorage
   useEffect(() => {
@@ -99,13 +111,13 @@ const Dashboard = () => {
     setApiResponse(null);
 
     try {
-      const token = await getAuthToken();
-      if (!token) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
         toast.error('Authentication required');
         return;
       }
 
-      const headers = await getAuthHeaders(token);
+      const headers = await getAuthHeaders(session.access_token);
       const response = await fetch(`${BACKEND_CONFIG.generateAppUrl}/generate-app`, {
         method: 'POST',
         headers,
@@ -263,8 +275,8 @@ const Dashboard = () => {
                     variant="outline" 
                     size="sm"
                     onClick={async () => {
-                      await logout();
-                      navigate('/firebase-auth');
+                      await supabase.auth.signOut();
+                      navigate('/auth');
                     }}
                     className="text-xs sm:text-sm"
                   >

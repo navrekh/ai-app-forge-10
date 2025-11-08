@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { BACKEND_CONFIG, getAuthHeaders } from "@/config/backend";
 
 interface DownloadAPKButtonProps {
@@ -18,7 +18,6 @@ interface DownloadAPKButtonProps {
 }
 
 export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonProps) => {
-  const { getAuthToken } = useAuth();
   const [building, setBuilding] = useState(false);
   const [buildId, setBuildId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('idle');
@@ -31,10 +30,10 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
 
     const interval = setInterval(async () => {
       try {
-        const token = await getAuthToken();
-        if (!token) return;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
 
-        const headers = await getAuthHeaders(token);
+        const headers = await getAuthHeaders(session.access_token);
         const response = await fetch(`${BACKEND_CONFIG.buildStatusUrl}/build-status/${buildId}`, { headers });
         
         if (!response.ok) {
@@ -64,7 +63,7 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
     }, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
-  }, [buildId, status, getAuthToken]);
+  }, [buildId, status]);
 
   const handleBuild = async () => {
     try {
@@ -73,15 +72,15 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
       setStatus('pending');
       setErrorMessage(null);
       
-      const token = await getAuthToken();
-      if (!token) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
         toast.error('Authentication required');
         setBuilding(false);
         setShowDialog(false);
         return;
       }
 
-      const headers = await getAuthHeaders(token);
+      const headers = await getAuthHeaders(session.access_token);
       const response = await fetch(`${BACKEND_CONFIG.buildApkUrl}/build-apk`, {
         method: 'POST',
         headers,

@@ -1,18 +1,29 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Smartphone, Zap, Shield, Sparkles } from 'lucide-react';
-import { useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && user) {
-      navigate('/dashboard');
-    }
-  }, [user, loading, navigate]);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/dashboard');
+      }
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        navigate('/dashboard');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -25,7 +36,7 @@ const Index = () => {
               </div>
               <h1 className="text-xl font-bold">MobileDev Builder</h1>
             </div>
-            <Button onClick={() => navigate('/firebase-auth')} variant="outline">
+            <Button onClick={() => navigate('/auth')} variant="outline">
               Get Started
             </Button>
           </div>
@@ -55,12 +66,12 @@ const Index = () => {
               <Button 
                 size="lg" 
                 className="gradient-primary shadow-glow text-lg"
-                onClick={() => navigate('/firebase-auth')}
+                onClick={() => navigate('/auth')}
               >
                 <Smartphone className="mr-2 h-5 w-5" />
                 Start Creating
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/firebase-auth')}>
+              <Button size="lg" variant="outline" onClick={() => navigate('/auth')}>
                 Sign In
               </Button>
             </div>
