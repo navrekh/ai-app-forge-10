@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { DownloadAPKButton } from "@/components/DownloadAPKButton";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_CONFIG, getAuthHeaders } from "@/config/backend";
+import { TemplateSelector } from "@/components/TemplateSelector";
+import { BuildProgress } from "@/components/BuildProgress";
 
 interface RecentPrompt {
   prompt: string;
@@ -39,6 +41,10 @@ const Dashboard = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [historyKey, setHistoryKey] = useState(0);
   const [isGeneratingApp, setIsGeneratingApp] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [buildStatus, setBuildStatus] = useState<'idle' | 'generating' | 'building' | 'completed' | 'failed'>('idle');
+  const [buildProgress, setBuildProgress] = useState(0);
+  const [buildLogs, setBuildLogs] = useState<string[]>([]);
 
   const charLimit = 1000;
   const charCount = prompt.length;
@@ -227,23 +233,52 @@ const Dashboard = () => {
   };
 
   const handleGenerateAppFromBackend = async () => {
+    if (!selectedTemplate) {
+      toast.error('Please select a template first');
+      return;
+    }
+
     setIsGeneratingApp(true);
+    setBuildStatus('generating');
+    setBuildProgress(0);
+    setBuildLogs(['Starting app generation...', `Using template: ${selectedTemplate}`]);
+
     try {
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setBuildProgress(prev => {
+          if (prev >= 90) return prev;
+          return prev + Math.random() * 10;
+        });
+        setBuildLogs(prev => [...prev, `Processing template components...`]);
+      }, 1000);
+
       const response = await fetch(`${BACKEND_CONFIG.mobileDevApiUrl}/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          template: selectedTemplate,
+          timestamp: new Date().toISOString(),
+        }),
       });
+
+      clearInterval(progressInterval);
 
       if (!response.ok) {
         throw new Error('Failed to generate app');
       }
 
       const data = await response.json();
+      setBuildProgress(100);
+      setBuildStatus('completed');
+      setBuildLogs(prev => [...prev, 'App generated successfully!']);
       toast.success('✅ App generated successfully! You can now download the APK.');
     } catch (error) {
       console.error('Error generating app:', error);
+      setBuildStatus('failed');
+      setBuildLogs(prev => [...prev, `Error: ${error.message}`]);
       toast.error('Failed to generate app. Please try again.');
     } finally {
       setIsGeneratingApp(false);
@@ -321,16 +356,30 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-12">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto space-y-8">
           {/* Hero Text */}
           <div className="text-center mb-6 sm:mb-12 space-y-2 sm:space-y-3">
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground px-2">
               Turn your app idea into reality in minutes.
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto px-4">
-              Describe what you want to build, and our AI creates a complete mobile app—ready to download and launch.
+              Choose a template and our AI creates a complete mobile app—ready to download and launch.
             </p>
           </div>
+
+          {/* Template Selector */}
+          <TemplateSelector 
+            selectedTemplate={selectedTemplate}
+            onSelectTemplate={setSelectedTemplate}
+          />
+
+          {/* Build Progress */}
+          <BuildProgress
+            status={buildStatus}
+            progress={buildProgress}
+            estimatedTime={120}
+            logs={buildLogs}
+          />
 
           <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
             {/* Left Panel - Form */}
