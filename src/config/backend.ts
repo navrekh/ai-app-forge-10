@@ -3,6 +3,7 @@ export const BACKEND_CONFIG = {
   generateAppUrl: import.meta.env.VITE_GENERATE_APP_URL || 'https://generate-app-xxxxx-uc.a.run.app',
   buildApkUrl: import.meta.env.VITE_BUILD_APK_URL || 'https://build-apk-xxxxx-uc.a.run.app',
   buildStatusUrl: import.meta.env.VITE_BUILD_STATUS_URL || 'https://build-status-xxxxx-uc.a.run.app',
+  mobileDevApiUrl: 'https://mobiledev-api-680477926513.asia-south1.run.app',
 } as const;
 
 // Helper to get auth headers

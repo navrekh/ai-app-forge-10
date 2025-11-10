@@ -460,6 +460,30 @@ const Dashboard = () => {
                   </>
                 )}
 
+                {/* Direct APK/IPA Download Buttons */}
+                <div className="pt-3 border-t border-border/40 space-y-2">
+                  <a
+                    href={`${BACKEND_CONFIG.mobileDevApiUrl}/download/apk`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => toast.success('APK download started ✅')}
+                    className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-foreground text-background rounded-lg font-semibold text-sm hover:opacity-80 transition-opacity"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Android App (APK)
+                  </a>
+                  
+                  <Button
+                    disabled
+                    size="lg"
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download iOS App (Coming Soon)
+                  </Button>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
                     onClick={() => setShowApiModal(true)}
