@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [currentAppId, setCurrentAppId] = useState<string | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [historyKey, setHistoryKey] = useState(0);
+  const [isGeneratingApp, setIsGeneratingApp] = useState(false);
 
   const charLimit = 1000;
   const charCount = prompt.length;
@@ -223,6 +224,35 @@ const Dashboard = () => {
   const handleLoadPrompt = (promptText: string) => {
     setPrompt(promptText);
     setApiResponse(null);
+  };
+
+  const handleGenerateAppFromBackend = async () => {
+    setIsGeneratingApp(true);
+    try {
+      const response = await fetch(`${BACKEND_CONFIG.mobileDevApiUrl}/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate app');
+      }
+
+      const data = await response.json();
+      toast.success('✅ App generated successfully! You can now download the APK.');
+    } catch (error) {
+      console.error('Error generating app:', error);
+      toast.error('Failed to generate app. Please try again.');
+    } finally {
+      setIsGeneratingApp(false);
+    }
+  };
+
+  const handleDownloadAPK = () => {
+    window.open(`${BACKEND_CONFIG.mobileDevApiUrl}/download/apk`, '_blank');
+    toast.success('⬇️ APK download started');
   };
 
   return (
@@ -460,30 +490,44 @@ const Dashboard = () => {
                   </>
                 )}
 
-                {/* Direct APK/IPA Download Buttons */}
-                <div className="pt-4 space-y-3">
+                {/* Backend API Integration Buttons */}
+                <div className="pt-4 space-y-3 border-t border-border/40">
                   <div className="text-xs font-medium text-muted-foreground mb-2">
-                    Quick Downloads
+                    AppDev.co.in Backend
                   </div>
-                  <a
-                    href={`${BACKEND_CONFIG.mobileDevApiUrl}/download/apk`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => toast.success('APK download started ✅')}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
+                  
+                  <Button
+                    onClick={handleGenerateAppFromBackend}
+                    disabled={isGeneratingApp}
+                    size="lg"
+                    className="w-full bg-[#2563eb] hover:bg-[#2563eb]/90 text-white"
                   >
-                    <Download className="h-4 w-4" />
-                    Download Android App
-                  </a>
+                    {isGeneratingApp ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      'Generate App'
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={handleDownloadAPK}
+                    size="lg"
+                    className="w-full bg-[#000000] hover:bg-[#000000]/80 text-white"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Android App (APK)
+                  </Button>
                   
                   <Button
                     disabled
                     size="lg"
-                    className="w-full"
-                    variant="secondary"
+                    className="w-full bg-[#6b7280] hover:bg-[#6b7280]/80 text-white opacity-60 cursor-not-allowed"
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    iOS App (Coming Soon)
+                    Download iOS App (Coming Soon)
                   </Button>
                 </div>
 
