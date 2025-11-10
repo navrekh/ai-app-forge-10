@@ -461,26 +461,29 @@ const Dashboard = () => {
                 )}
 
                 {/* Direct APK/IPA Download Buttons */}
-                <div className="pt-3 border-t border-border/40 space-y-2">
+                <div className="pt-4 space-y-3">
+                  <div className="text-xs font-medium text-muted-foreground mb-2">
+                    Quick Downloads
+                  </div>
                   <a
                     href={`${BACKEND_CONFIG.mobileDevApiUrl}/download/apk`}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => toast.success('APK download started ✅')}
-                    className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-foreground text-background rounded-lg font-semibold text-sm hover:opacity-80 transition-opacity"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
                   >
                     <Download className="h-4 w-4" />
-                    Download Android App (APK)
+                    Download Android App
                   </a>
                   
                   <Button
                     disabled
                     size="lg"
                     className="w-full"
-                    variant="outline"
+                    variant="secondary"
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    Download iOS App (Coming Soon)
+                    iOS App (Coming Soon)
                   </Button>
                 </div>
 
