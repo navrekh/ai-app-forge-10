@@ -9,7 +9,7 @@ const Pricing = () => {
   const { initiatePayment } = useRazorpay();
 
   const handleBuyCredits = () => {
-    initiatePayment(3000, 100);
+    initiatePayment(2000, 100);
   };
 
   return (
@@ -77,7 +77,7 @@ const Pricing = () => {
                 Best Value
               </div>
               <h2 className="text-2xl font-bold mb-2">Credit Package</h2>
-              <div className="text-4xl font-bold mb-2">₹3,000</div>
+              <div className="text-4xl font-bold mb-2">₹2,000</div>
               <p className="text-muted-foreground">100 credits</p>
             </div>
 
