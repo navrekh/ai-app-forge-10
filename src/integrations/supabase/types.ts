@@ -88,9 +88,41 @@ export type Database = {
           },
         ]
       }
+      credits_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string | null
+          description: string
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string | null
+          description: string
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string | null
+          description?: string
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
+          credits: number
+          credits_updated_at: string | null
           email: string
           full_name: string | null
           id: string
@@ -98,6 +130,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          credits?: number
+          credits_updated_at?: string | null
           email: string
           full_name?: string | null
           id: string
@@ -105,6 +139,8 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          credits?: number
+          credits_updated_at?: string | null
           email?: string
           full_name?: string | null
           id?: string
@@ -171,7 +207,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_credits: {
+        Args: { _amount: number; _description: string; _user_id: string }
+        Returns: Json
+      }
+      deduct_credits: {
+        Args: { _amount: number; _description: string; _user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

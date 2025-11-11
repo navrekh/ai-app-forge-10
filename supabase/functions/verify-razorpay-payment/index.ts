@@ -36,7 +36,7 @@ serve(async (req) => {
 
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, credits } = await req.json();
 
-    console.log('Verifying payment:', { razorpay_order_id, razorpay_payment_id });
+    console.log('Verifying payment:', { razorpay_order_id, razorpay_payment_id, credits });
 
     // Verify signature using Web Crypto API
     const text = `${razorpay_order_id}|${razorpay_payment_id}`;
@@ -63,16 +63,35 @@ serve(async (req) => {
 
     console.log('Payment verified successfully');
 
-    // Here you would typically:
-    // 1. Update user's credit balance in your database
-    // 2. Create a transaction record
-    // For now, we'll just return success
+    // Use service role client to call the add_credits function
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: result, error: creditsError } = await supabaseAdmin.rpc('add_credits', {
+      _user_id: user.id,
+      _amount: credits,
+      _description: `Purchase of ${credits} credits via Razorpay (Order: ${razorpay_order_id})`
+    });
+
+    if (creditsError) {
+      console.error('Credits addition error:', creditsError);
+      throw creditsError;
+    }
+
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to add credits');
+    }
+
+    console.log('Credits added successfully:', result);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Payment verified successfully',
-        credits: credits
+        message: 'Payment verified and credits added successfully',
+        new_balance: result.new_balance,
+        credits_added: credits
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

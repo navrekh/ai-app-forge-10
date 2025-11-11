@@ -84,7 +84,13 @@ export const useRazorpay = () => {
               return;
             }
 
-            toast.success(`Payment successful! ${credits} credits added to your account`);
+            toast.success(
+              `Payment successful! ${verifyData.credits_added} credits added. New balance: ${verifyData.new_balance} credits`,
+              { duration: 5000 }
+            );
+            
+            // Reload the page to refresh all data
+            setTimeout(() => window.location.reload(), 2000);
           } catch (err) {
             console.error('Verification error:', err);
             toast.error('Payment verification failed');

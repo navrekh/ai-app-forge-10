@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { BACKEND_CONFIG, getAuthHeaders } from "@/config/backend";
 import { TemplateSelector } from "@/components/TemplateSelector";
 import { BuildProgress } from "@/components/BuildProgress";
+import { CreditsDisplay } from "@/components/CreditsDisplay";
+import { useCredits } from "@/hooks/useCredits";
 
 interface RecentPrompt {
   prompt: string;
@@ -45,6 +47,7 @@ const Dashboard = () => {
   const [buildStatus, setBuildStatus] = useState<'idle' | 'generating' | 'building' | 'completed' | 'failed'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>([]);
+  const { deductCredits } = useCredits();
 
   const charLimit = 1000;
   const charCount = prompt.length;
@@ -238,6 +241,12 @@ const Dashboard = () => {
       return;
     }
 
+    // Check and deduct 1 credit for app generation
+    const creditsDeducted = await deductCredits(1, `App generation: ${selectedTemplate}`);
+    if (!creditsDeducted) {
+      return; // Credits insufficient, error already shown by hook
+    }
+
     setIsGeneratingApp(true);
     setBuildStatus('generating');
     setBuildProgress(0);
@@ -316,38 +325,41 @@ const Dashboard = () => {
                 API: {apiStatus === 'checking' ? 'Checking...' : apiStatus === 'online' ? 'Online' : 'Offline'}
               </div>
               {user && (
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/builds-history')}
-                    className="text-xs sm:text-sm px-2 sm:px-3"
-                  >
-                    <span className="hidden sm:inline">History</span>
-                    <span className="sm:hidden">📋</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/profile')}
-                    className="text-xs sm:text-sm px-2 sm:px-3"
-                  >
-                    <span className="hidden sm:inline">Profile</span>
-                    <span className="sm:hidden">👤</span>
-                  </Button>
-                  <span className="text-xs sm:text-sm text-muted-foreground hidden lg:inline truncate max-w-[150px]">{user.email}</span>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={async () => {
-                      await supabase.auth.signOut();
-                      navigate('/auth');
-                    }}
-                    className="text-xs sm:text-sm"
-                  >
-                    Logout
-                  </Button>
-                </div>
+                <>
+                  <CreditsDisplay />
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate('/builds-history')}
+                      className="text-xs sm:text-sm px-2 sm:px-3"
+                    >
+                      <span className="hidden sm:inline">History</span>
+                      <span className="sm:hidden">📋</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate('/profile')}
+                      className="text-xs sm:text-sm px-2 sm:px-3"
+                    >
+                      <span className="hidden sm:inline">Profile</span>
+                      <span className="sm:hidden">👤</span>
+                    </Button>
+                    <span className="text-xs sm:text-sm text-muted-foreground hidden lg:inline truncate max-w-[150px]">{user.email}</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        navigate('/auth');
+                      }}
+                      className="text-xs sm:text-sm"
+                    >
+                      Logout
+                    </Button>
+                  </div>
+                </>
               )}
             </div>
           </div>
