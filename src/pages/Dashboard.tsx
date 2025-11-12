@@ -137,59 +137,75 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex flex-col">
-      {/* Header */}
-      <header className="w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-primary" />
-              <span className="text-sm text-muted-foreground">Powered by AppDev AI</span>
+    <div className="min-h-screen gradient-hero relative overflow-hidden">
+      {/* Ambient gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Header */}
+        <header className="w-full border-b border-border/40 bg-background/50 backdrop-blur-xl">
+          <div className="container mx-auto px-4 sm:px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <span className="text-sm font-medium text-foreground">AppDev AI</span>
+              </div>
+              {user && (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    navigate('/auth');
+                  }}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Logout
+                </Button>
+              )}
             </div>
-            {user && (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  navigate('/auth');
-                }}
-              >
-                Logout
-              </Button>
-            )}
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content - Centered */}
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-2xl space-y-8">
-          {/* Title */}
-          <div className="text-center space-y-2">
-            <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              AppDev AI Builder
-            </h1>
-            <p className="text-muted-foreground">
-              Transform your ideas into mobile apps instantly
-            </p>
-          </div>
+        {/* Main Content */}
+        <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-16">
+          <div className="w-full max-w-3xl space-y-8 sm:space-y-12">
+            {/* Hero Section */}
+            <div className="text-center space-y-4 sm:space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-sm font-medium text-primary">AI-Powered Builder</span>
+              </div>
+              
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
+                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
+                  Build Apps in Seconds
+                </span>
+              </h1>
+              
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                Transform your ideas into production-ready mobile apps with AI
+              </p>
+            </div>
 
-          {/* Main Card */}
-          <div className="bg-card/60 backdrop-blur-sm shadow-card rounded-2xl p-6 sm:p-8 space-y-6 border border-border/50">
-            {!buildId ? (
-              <>
-                {/* Input Section */}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">
-                      Enter project name or idea
+            {/* Main Card */}
+            <div className="bg-card/40 backdrop-blur-xl shadow-card border border-border/50 rounded-3xl p-6 sm:p-10 space-y-8 hover:shadow-glow transition-all duration-300">
+              {!buildId ? (
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-sm font-semibold text-foreground/90 block">
+                      What would you like to build?
                     </label>
                     <Input
                       value={projectName}
                       onChange={(e) => setProjectName(e.target.value)}
-                      placeholder="e.g., My Amazing Todo App"
-                      className="text-base h-12"
+                      placeholder="e.g., A todo app with reminders and dark mode..."
+                      className="h-14 text-base bg-background/50 border-border/60 focus:border-primary/60 transition-colors backdrop-blur-sm"
                       disabled={isBuilding}
                       onKeyPress={(e) => {
                         if (e.key === 'Enter' && !isBuilding) {
@@ -203,33 +219,36 @@ const Dashboard = () => {
                     onClick={handleStartBuild}
                     disabled={isBuilding || !projectName.trim()}
                     size="lg"
-                    className="w-full h-12 text-base font-semibold"
+                    className="w-full h-14 text-base font-semibold gradient-primary hover:opacity-90 transition-all shadow-lg hover:shadow-glow"
                   >
                     {isBuilding ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Starting Build...
+                        Initializing...
                       </>
                     ) : (
-                      'Start Build'
+                      <>
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Start Building
+                      </>
                     )}
                   </Button>
                 </div>
-              </>
-            ) : (
-              <>
-                {/* Progress Section */}
-                <div className="space-y-6">
-                  {/* Status Badge */}
+              ) : (
+                <div className="space-y-8">
+                  {/* Status Display */}
                   {buildStatus && (
-                    <div className="flex items-center justify-center gap-3">
-                      <span className="text-4xl">{STATUS_EMOJI[buildStatus.status]}</span>
-                      <div className="text-center">
-                        <p className="text-xl font-semibold text-foreground">
+                    <div className="text-center space-y-4">
+                      <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20">
+                        <span className="text-5xl">{STATUS_EMOJI[buildStatus.status]}</span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-bold text-foreground">
                           {STATUS_LABELS[buildStatus.status]}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Build ID: {buildId.slice(0, 8)}
+                        </h3>
+                        <p className="text-sm text-muted-foreground font-mono">
+                          {buildId.slice(0, 12)}
                         </p>
                       </div>
                     </div>
@@ -237,62 +256,70 @@ const Dashboard = () => {
 
                   {/* Progress Bar */}
                   {buildStatus && buildStatus.status !== 'completed' && buildStatus.status !== 'failed' && (
-                    <div className="space-y-2">
-                      <Progress value={buildStatus.progress} className="h-2" />
-                      <p className="text-sm text-center text-muted-foreground">
-                        {buildStatus.progress}% complete
-                      </p>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-semibold text-foreground">{buildStatus.progress}%</span>
+                      </div>
+                      <Progress value={buildStatus.progress} className="h-3 bg-secondary" />
                     </div>
                   )}
 
                   {/* Build Logs */}
                   {logs.length > 0 && (
-                    <div className="bg-muted/50 rounded-lg p-4 max-h-48 overflow-y-auto space-y-1">
+                    <div className="bg-muted/30 backdrop-blur-sm rounded-2xl p-5 max-h-56 overflow-y-auto border border-border/40 space-y-2">
                       {logs.map((log, index) => (
-                        <p key={index} className="text-sm text-foreground font-mono">
+                        <div 
+                          key={index} 
+                          className="text-sm text-foreground/80 font-mono animate-in fade-in slide-in-from-bottom-2 duration-300"
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
                           {log}
-                        </p>
+                        </div>
                       ))}
                     </div>
                   )}
 
-                  {/* Download Button */}
-                  {buildStatus?.status === 'completed' && buildStatus.downloadUrl && (
-                    <Button
-                      onClick={() => {
-                        window.open(buildStatus.downloadUrl, '_blank');
-                        toast.success('⬇️ APK download started');
-                      }}
-                      size="lg"
-                      className="w-full h-12 text-base font-semibold"
-                    >
-                      <Download className="mr-2 h-5 w-5" />
-                      Download APK
-                    </Button>
-                  )}
+                  {/* Action Buttons */}
+                  <div className="space-y-3">
+                    {buildStatus?.status === 'completed' && buildStatus.downloadUrl && (
+                      <Button
+                        onClick={() => {
+                          window.open(buildStatus.downloadUrl, '_blank');
+                          toast.success('⬇️ APK download started');
+                        }}
+                        size="lg"
+                        className="w-full h-14 text-base font-semibold gradient-primary hover:opacity-90 transition-all shadow-lg hover:shadow-glow"
+                      >
+                        <Download className="mr-2 h-5 w-5" />
+                        Download APK
+                      </Button>
+                    )}
 
-                  {/* New Build Button */}
-                  {(buildStatus?.status === 'completed' || buildStatus?.status === 'failed') && (
-                    <Button
-                      onClick={handleNewBuild}
-                      variant="outline"
-                      size="lg"
-                      className="w-full h-12 text-base"
-                    >
-                      Start New Build
-                    </Button>
-                  )}
+                    {(buildStatus?.status === 'completed' || buildStatus?.status === 'failed') && (
+                      <Button
+                        onClick={handleNewBuild}
+                        variant="outline"
+                        size="lg"
+                        className="w-full h-14 text-base font-medium bg-background/50 backdrop-blur-sm hover:bg-background/80 border-border/60"
+                      >
+                        Start New Build
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Info Footer */}
-          <div className="text-center text-sm text-muted-foreground">
-            <p>Hosted at <span className="font-medium text-foreground">appdev.co.in</span></p>
+            {/* Footer Info */}
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                Powered by <span className="font-semibold text-foreground">appdev.co.in</span>
+              </p>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
