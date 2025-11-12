@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://13.201.115.240:3000";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://appdev.co.in/api";
 
 interface BuildResponse {
   buildId: string;
