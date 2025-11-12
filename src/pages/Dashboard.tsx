@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = "https://appdev.co.in/api";
+const BASE_URL = "http://13.201.115.240:3000";
 
 interface BuildResponse {
   buildId: string;
