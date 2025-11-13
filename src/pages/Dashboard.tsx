@@ -70,7 +70,14 @@ const Dashboard = () => {
     const pollStatus = async () => {
       try {
         const response = await fetch(`${BASE_URL}/build/status/${buildId}`);
+        
+        if (!response.ok) {
+          console.error('Status check failed:', response.status);
+          return;
+        }
+        
         const data: BuildStatusResponse = await response.json();
+        console.log('Build status:', data);
         
         setBuildStatus(data);
         
@@ -103,27 +110,44 @@ const Dashboard = () => {
     }
 
     setIsBuilding(true);
-    setLogs(['🚀 Starting build...']);
+    setLogs(['🚀 Starting build...', `🔗 Connecting to ${BASE_URL}`]);
     setBuildStatus(null);
     setBuildId(null);
 
     try {
+      console.log('Attempting to connect to:', `${BASE_URL}/build/start`);
+      
       const response = await fetch(`${BASE_URL}/build/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ projectName: projectName.trim() }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
-        throw new Error('Failed to start build');
+        const errorText = await response.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`Server returned ${response.status}: ${errorText}`);
       }
 
       const data: BuildResponse = await response.json();
+      console.log('Build started successfully:', data);
       setBuildId(data.buildId);
       setLogs(prev => [...prev, `✅ Build started with ID: ${data.buildId}`]);
     } catch (error) {
       console.error('Build error:', error);
-      toast.error('❌ Failed to start build. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        toast.error('❌ Cannot connect to backend. Please check if the server is running at ' + BASE_URL);
+        setLogs(prev => [...prev, `❌ Connection failed: Cannot reach ${BASE_URL}`, '💡 Check: 1) Server is running 2) SSL configured 3) CORS enabled']);
+      } else {
+        toast.error(`❌ Build failed: ${errorMessage}`);
+        setLogs(prev => [...prev, `❌ Error: ${errorMessage}`]);
+      }
+      
       setIsBuilding(false);
     }
   };
