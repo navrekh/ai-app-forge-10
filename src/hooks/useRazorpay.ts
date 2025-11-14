@@ -60,7 +60,7 @@ export const useRazorpay = () => {
         key: keyId,
         amount: amount * 100, // Convert to paise
         currency: 'INR',
-        name: 'MobileDev Builder',
+        name: 'AppDev',
         description: `Purchase ${credits} Credits`,
         order_id: orderId,
         handler: async (response: any) => {

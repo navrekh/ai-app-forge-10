@@ -179,7 +179,7 @@ const Auth = () => {
               <Smartphone className="w-8 h-8 text-primary-foreground" />
             </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            MobileDev Builder
+            AppDev
           </h1>
           <p className="text-muted-foreground">Reset your password</p>
           </div>
@@ -241,7 +241,7 @@ const Auth = () => {
             <Smartphone className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            MobileDev Builder
+            AppDev
           </h1>
           <p className="text-muted-foreground">Generate mobile apps with AI</p>
         </div>

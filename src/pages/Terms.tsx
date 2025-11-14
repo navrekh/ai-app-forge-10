@@ -9,7 +9,7 @@ const Terms = () => {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
-            MobileDev Builder
+            AppDev
           </h1>
           <Button onClick={() => navigate("/")} variant="outline">
             Back to Home
@@ -24,21 +24,21 @@ const Terms = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
             <p className="text-muted-foreground">
-              By accessing and using MobileDev Builder, you accept and agree to be bound by the terms and provision of this agreement.
+              By accessing and using AppDev, you accept and agree to be bound by the terms and provision of this agreement.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-4">2. Use License</h2>
             <p className="text-muted-foreground">
-              Permission is granted to use MobileDev Builder for generating mobile applications. This license shall automatically terminate if you violate any of these restrictions.
+              Permission is granted to use AppDev for generating mobile applications. This license shall automatically terminate if you violate any of these restrictions.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-4">3. Credits System</h2>
             <p className="text-muted-foreground">
-              MobileDev Builder operates on a credit-based system. Each new user receives 5 free credits. Additional credits can be purchased as needed. Credits are non-transferable and non-refundable once used.
+              AppDev operates on a credit-based system. Each new user receives 5 free credits. Additional credits can be purchased as needed. Credits are non-transferable and non-refundable once used.
             </p>
           </section>
 
@@ -59,7 +59,7 @@ const Terms = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">6. Limitation of Liability</h2>
             <p className="text-muted-foreground">
-              MobileDev Builder shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service.
+              AppDev shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service.
             </p>
           </section>
 
@@ -74,7 +74,7 @@ const Terms = () => {
 
       <footer className="border-t mt-16 py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2024 MobileDev Builder. All rights reserved.</p>
+          <p>&copy; 2024 AppDev. All rights reserved.</p>
         </div>
       </footer>
     </div>
