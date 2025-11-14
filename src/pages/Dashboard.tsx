@@ -77,7 +77,7 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Poll build status
+  // Poll build status every 3 seconds
   useEffect(() => {
     if (!buildId || buildStatus?.status === 'completed' || buildStatus?.status === 'failed') {
       return;
@@ -90,9 +90,12 @@ const Dashboard = () => {
         
         setBuildStatus(data);
         
-        const emoji = STATUS_EMOJI[data.status];
-        const label = STATUS_LABELS[data.status];
-        setLogs(prev => [...prev, `${emoji} ${label}...`]);
+        // Update logs only when status changes
+        if (data.status !== buildStatus?.status) {
+          const emoji = STATUS_EMOJI[data.status] || '⏳';
+          const label = STATUS_LABELS[data.status] || 'Processing';
+          setLogs(prev => [...prev, `${emoji} ${label}... (${data.progress}%)`]);
+        }
 
         if (data.status === 'completed') {
           setIsBuilding(false);
@@ -103,18 +106,14 @@ const Dashboard = () => {
         }
       } catch (error: any) {
         console.error('Failed to fetch build status:', error);
-        
-        // Stop polling on 404 - endpoint doesn't exist
-        if (error.response?.status === 404) {
-          setIsBuilding(false);
-          toast.error('❌ Backend API endpoint not found. Please check your server.');
-          setLogs(prev => [...prev, '❌ Error: /api/build-status endpoint returned 404', '💡 Check if your backend server is running at https://api.appdev.co.in']);
-          setBuildId(null); // Stop polling
-        }
+        setIsBuilding(false);
+        toast.error(`❌ Failed to check build status: ${error.message}`);
+        setLogs(prev => [...prev, `❌ Error: ${error.message}`, `💡 Check if backend is running at ${import.meta.env.VITE_API_URL}`]);
+        setBuildId(null); // Stop polling
       }
     };
 
-    const interval = setInterval(pollStatus, 5000);
+    const interval = setInterval(pollStatus, 3000); // Poll every 3 seconds
     pollStatus(); // Initial call
 
     return () => clearInterval(interval);
