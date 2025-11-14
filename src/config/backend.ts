@@ -1,10 +1,12 @@
-// Backend service URLs - Update these with your deployed Cloud Run URLs
+// Backend API configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.appdev.co.in';
+
 export const BACKEND_CONFIG = {
-  generateAppUrl: import.meta.env.VITE_GENERATE_APP_URL || 'https://generate-app-xxxxx-uc.a.run.app',
-  buildApkUrl: import.meta.env.VITE_BUILD_APK_URL || 'https://build-apk-xxxxx-uc.a.run.app',
-  buildStatusUrl: import.meta.env.VITE_BUILD_STATUS_URL || 'https://build-status-xxxxx-uc.a.run.app',
-  // Main backend API for appdev.co.in
-  mobileDevApiUrl: 'https://mobiledev-api-680477926513.asia-south1.run.app',
+  apiBaseUrl: API_BASE_URL,
+  generateAppUrl: `${API_BASE_URL}/api/generate-app`,
+  buildApkUrl: `${API_BASE_URL}/api/build-apk`,
+  buildStatusUrl: `${API_BASE_URL}/api/build-status`,
+  healthUrl: `${API_BASE_URL}/health`,
 } as const;
 
 // Helper to get auth headers
