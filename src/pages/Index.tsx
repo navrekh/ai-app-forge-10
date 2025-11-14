@@ -47,7 +47,7 @@ const Index = () => {
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-glow">
                   <Smartphone className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <h1 className="text-xl font-bold">MobileDev Builder</h1>
+                <h1 className="text-xl font-bold">AppDev</h1>
               </div>
               <div className="flex items-center gap-3">
                 {user ? (
@@ -202,7 +202,7 @@ const Index = () => {
                 </button>
               </div>
               <p className="text-center text-sm text-muted-foreground">
-                © 2025 MobileDev Builder. Generate mobile apps with AI.
+                © 2025 AppDev. Generate mobile apps with AI.
               </p>
             </div>
           </div>

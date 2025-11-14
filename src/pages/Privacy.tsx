@@ -9,7 +9,7 @@ const Privacy = () => {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
-            MobileDev Builder
+            AppDev
           </h1>
           <Button onClick={() => navigate("/")} variant="outline">
             Back to Home
@@ -81,7 +81,7 @@ const Privacy = () => {
 
       <footer className="border-t mt-16 py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2024 MobileDev Builder. All rights reserved.</p>
+          <p>&copy; 2024 AppDev. All rights reserved.</p>
         </div>
       </footer>
     </div>
