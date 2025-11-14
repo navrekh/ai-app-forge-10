@@ -1,47 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Smartphone, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
+import { Smartphone, Sparkles, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PhoneMockup } from '@/components/PhoneMockup';
 import { toast } from 'sonner';
-import { Progress } from '@/components/ui/progress';
-import { api } from '@/utils/api';
 
-interface BuildStatusResponse {
-  status: 'planning' | 'generating' | 'building' | 'packaging' | 'completed' | 'failed';
-  progress: number;
-  downloadUrl?: string;
-  error?: string;
-}
-
-const STATUS_EMOJI = {
-  planning: '🧠',
-  generating: '🏗️',
-  building: '⚙️',
-  packaging: '📦',
-  completed: '✅',
-  failed: '❌'
-};
-
-const STATUS_LABELS = {
-  planning: 'Planning your app',
-  generating: 'Generating screens',
-  building: 'Building components',
-  packaging: 'Finalizing',
-  completed: 'Complete!',
-  failed: 'Failed'
-};
 
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [appIdea, setAppIdea] = useState('');
-  const [buildId, setBuildId] = useState<string | null>(null);
-  const [buildStatus, setBuildStatus] = useState<BuildStatusResponse | null>(null);
-  const [isBuilding, setIsBuilding] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -55,48 +25,7 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Poll build status
-  useEffect(() => {
-    if (!buildId || buildStatus?.status === 'completed' || buildStatus?.status === 'failed') {
-      return;
-    }
-
-    const pollStatus = async () => {
-      try {
-        const { data } = await api.get<BuildStatusResponse>(`/api/build-status/${buildId}`);
-        setBuildStatus(data);
-        
-        const emoji = STATUS_EMOJI[data.status];
-        const label = STATUS_LABELS[data.status];
-        setLogs(prev => [...prev, `${emoji} ${label}`]);
-
-        if (data.status === 'completed') {
-          setIsBuilding(false);
-          toast.success('🎉 App created successfully!');
-        } else if (data.status === 'failed') {
-          setIsBuilding(false);
-          toast.error('❌ Build failed. Please try again.');
-        }
-      } catch (error: any) {
-        console.error('Failed to fetch build status:', error);
-        
-        // Stop polling on 404 - endpoint doesn't exist
-        if (error.response?.status === 404) {
-          setIsBuilding(false);
-          toast.error('❌ Backend API endpoint not found. Please check your server.');
-          setLogs(prev => [...prev, '❌ Error: /api/build-status endpoint returned 404', '💡 Check if your backend server is running at https://api.appdev.co.in']);
-          setBuildId(null); // Stop polling
-        }
-      }
-    };
-
-    const interval = setInterval(pollStatus, 3000);
-    pollStatus();
-
-    return () => clearInterval(interval);
-  }, [buildId, buildStatus?.status]);
-
-  const handleStartCreating = async () => {
+  const handleStartCreating = () => {
     if (!user) {
       navigate('/auth');
       return;
@@ -107,23 +36,8 @@ const Index = () => {
       return;
     }
 
-    setIsBuilding(true);
-    setLogs(['🚀 Starting to build your app...']);
-    setBuildStatus(null);
-    setBuildId(null);
-
-    try {
-      const { data } = await api.post<{ buildId: string; status: string }>('/api/build/start', { 
-        projectName: appIdea.trim() 
-      });
-      setBuildId(data.buildId);
-      setLogs(prev => [...prev, `✅ Build started!`]);
-    } catch (error) {
-      console.error('Build error:', error);
-      toast.error('Failed to start build. Please try again.');
-      setIsBuilding(false);
-      setLogs(prev => [...prev, '❌ Failed to connect to build service']);
-    }
+    // Redirect to dashboard with the app idea
+    navigate('/dashboard', { state: { appIdea: appIdea.trim() } });
   };
 
   return (
@@ -168,128 +82,70 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
             {/* Left side - Creation Interface */}
             <div className="space-y-8">
-              {!isBuilding && !buildStatus ? (
-                <>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                    <Sparkles className="h-4 w-4" />
-                    AI-Powered App Generation
-                  </div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                <Sparkles className="h-4 w-4" />
+                AI-Powered App Generation
+              </div>
 
-                  <div className="space-y-4">
-                    <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                      Start Creating{' '}
-                      <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        Your App
-                      </span>
-                    </h1>
-                    
-                    <p className="text-xl text-muted-foreground">
-                      Describe your app idea and watch it come to life in seconds. No coding required.
-                    </p>
-                  </div>
+              <div className="space-y-4">
+                <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+                  Start Creating{' '}
+                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Your App
+                  </span>
+                </h1>
+                
+                <p className="text-xl text-muted-foreground">
+                  Describe your app idea and watch it come to life in seconds. No coding required.
+                </p>
+              </div>
 
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <Input
-                        placeholder="e.g., A fitness tracking app with workout routines..."
-                        value={appIdea}
-                        onChange={(e) => setAppIdea(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleStartCreating()}
-                        className="h-14 text-lg pr-12 bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary"
-                      />
-                      <button
-                        onClick={handleStartCreating}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
-                      >
-                        <Sparkles className="w-5 h-5 text-primary" />
-                      </button>
-                    </div>
+              <div className="space-y-4">
+                <div className="relative">
+                  <Input
+                    placeholder="e.g., A fitness tracking app with workout routines..."
+                    value={appIdea}
+                    onChange={(e) => setAppIdea(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleStartCreating()}
+                    className="h-14 text-lg pr-12 bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary"
+                  />
+                  <button
+                    onClick={handleStartCreating}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+                  >
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </button>
+                </div>
 
-                    <Button
-                      onClick={handleStartCreating}
-                      size="lg"
-                      className="w-full h-14 text-lg group"
-                    >
-                      {user ? 'Start Building' : 'Sign In to Start'}
-                      <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                    </Button>
+                <Button
+                  onClick={handleStartCreating}
+                  size="lg"
+                  className="w-full h-14 text-lg group"
+                >
+                  {user ? 'Start Building' : 'Sign In to Start'}
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
 
-                    <p className="text-sm text-center text-muted-foreground">
-                      Join thousands building amazing apps with AI
-                    </p>
-                  </div>
+                <p className="text-sm text-center text-muted-foreground">
+                  Join thousands building amazing apps with AI
+                </p>
+              </div>
 
-                  {/* Quick stats */}
-                  <div className="grid grid-cols-3 gap-4 pt-8">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">30s</div>
-                      <div className="text-sm text-muted-foreground">Avg. Generation Time</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">10k+</div>
-                      <div className="text-sm text-muted-foreground">Apps Created</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">100%</div>
-                      <div className="text-sm text-muted-foreground">AI-Powered</div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Building Your App
-                  </div>
-
-                  <div className="space-y-4">
-                    <h2 className="text-4xl font-bold">
-                      Creating
-                      <span className="block text-primary">{appIdea}</span>
-                    </h2>
-
-                    {buildStatus && (
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium">{STATUS_LABELS[buildStatus.status]}</span>
-                          <span className="text-muted-foreground">{buildStatus.progress}%</span>
-                        </div>
-                        <Progress value={buildStatus.progress} className="h-2" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-card rounded-xl border p-4 space-y-2 max-h-64 overflow-y-auto">
-                    {logs.map((log, index) => (
-                      <div key={index} className="text-sm text-muted-foreground font-mono">
-                        {log}
-                      </div>
-                    ))}
-                  </div>
-
-                  {buildStatus?.status === 'completed' && (
-                    <Button onClick={() => navigate('/dashboard')} size="lg" className="w-full">
-                      View Your App <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                  )}
-
-                  {buildStatus?.status === 'failed' && (
-                    <Button
-                      onClick={() => {
-                        setIsBuilding(false);
-                        setBuildStatus(null);
-                        setBuildId(null);
-                        setLogs([]);
-                      }}
-                      size="lg"
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Try Again
-                    </Button>
-                  )}
-                </>
-              )}
+              {/* Quick stats */}
+              <div className="grid grid-cols-3 gap-4 pt-8">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">30s</div>
+                  <div className="text-sm text-muted-foreground">Avg. Generation Time</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">10k+</div>
+                  <div className="text-sm text-muted-foreground">Apps Created</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">100%</div>
+                  <div className="text-sm text-muted-foreground">AI-Powered</div>
+                </div>
+              </div>
             </div>
 
             {/* Right side - Phone Mockup */}
