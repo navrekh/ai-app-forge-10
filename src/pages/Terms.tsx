@@ -1,21 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { Header } from "@/components/Header";
 
 const Terms = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
-            AppDev
-          </h1>
-          <Button onClick={() => navigate("/")} variant="outline">
-            Back to Home
-          </Button>
-        </div>
-      </header>
+      <Header />
 
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8">Terms and Conditions</h1>
