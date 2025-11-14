@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ENDPOINTS, BACKEND_API_URL } from "@/config/backend";
 import { api } from "@/utils/api";
+import { Header } from "@/components/Header";
 
 interface BuildResponse {
   buildId: string;
@@ -150,31 +151,7 @@ const Dashboard = () => {
 
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
-        <header className="w-full border-b border-border/40 bg-background/50 backdrop-blur-xl">
-          <div className="container mx-auto px-4 sm:px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <span className="text-sm font-medium text-foreground">AppDev AI</span>
-              </div>
-              {user && (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    navigate('/auth');
-                  }}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Logout
-                </Button>
-              )}
-            </div>
-          </div>
-        </header>
+        <Header showDashboard={false} />
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-16">

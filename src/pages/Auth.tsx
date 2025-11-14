@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Smartphone, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
+import { Header } from '@/components/Header';
 
 const emailSchema = z.string().email('Invalid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -164,26 +165,10 @@ const Auth = () => {
 
   if (view === 'forgot') {
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
-        </Button>
-        <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-4 shadow-glow">
-              <Smartphone className="w-8 h-8 text-primary-foreground" />
-            </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            AppDev
-          </h1>
-          <p className="text-muted-foreground">Reset your password</p>
-          </div>
-
+    <div className="min-h-screen gradient-hero">
+      <Header showAuth={false} showDashboard={false} />
+      <div className="flex items-center justify-center p-4 pt-12">
+        <div className="w-full max-w-md">
           <Card className="shadow-card border-border/50">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -222,29 +207,15 @@ const Auth = () => {
           </Card>
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
-        </Button>
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-4 shadow-glow">
-            <Smartphone className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            AppDev
-          </h1>
-          <p className="text-muted-foreground">Generate mobile apps with AI</p>
-        </div>
+    <div className="min-h-screen gradient-hero">
+      <Header showAuth={false} showDashboard={false} />
+      <div className="flex items-center justify-center p-4 pt-12">
+        <div className="w-full max-w-md">
 
         <Card className="shadow-card border-border/50">
           <CardHeader>
@@ -365,6 +336,7 @@ const Auth = () => {
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   );
 };

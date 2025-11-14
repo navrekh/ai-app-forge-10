@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
 import { useRazorpay } from "@/hooks/useRazorpay";
+import { Header } from "@/components/Header";
 
 const Pricing = () => {
   const navigate = useNavigate();
@@ -14,16 +15,7 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
-            AppDev
-          </h1>
-          <Button onClick={() => navigate("/")} variant="outline">
-            Back to Home
-          </Button>
-        </div>
-      </header>
+      <Header />
 
       <main className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="text-center mb-12">
