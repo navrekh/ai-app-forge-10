@@ -77,8 +77,16 @@ const Index = () => {
           setIsBuilding(false);
           toast.error('❌ Build failed. Please try again.');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch build status:', error);
+        
+        // Stop polling on 404 - endpoint doesn't exist
+        if (error.response?.status === 404) {
+          setIsBuilding(false);
+          toast.error('❌ Backend API endpoint not found. Please check your server.');
+          setLogs(prev => [...prev, '❌ Error: /api/build-status endpoint returned 404', '💡 Check if your backend server is running at https://api.appdev.co.in']);
+          setBuildId(null); // Stop polling
+        }
       }
     };
 
