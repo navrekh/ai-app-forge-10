@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { buildAPK, getBuildStatus } from "@/api/build";
 
 interface DownloadAPKButtonProps {
   appHistoryId: string;
@@ -29,37 +29,25 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
 
     const interval = setInterval(async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) return;
-
-        const headers = {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        };
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/build-status/${buildId}`, { headers });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to check build status: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        console.log('Build status:', data.status);
+        const data = await getBuildStatus(buildId);
+        console.log('APK Build status:', data.status);
         setStatus(data.status);
 
         if (data.status === 'completed') {
           setDownloadUrl(data.downloadUrl);
           setBuilding(false);
-          toast.success(`${data.platform === 'ios' ? 'IPA' : 'APK'} build completed!`);
+          toast.success('APK build completed!');
           clearInterval(interval);
         } else if (data.status === 'failed') {
-          setErrorMessage(data.errorMessage || 'Unknown error');
+          setErrorMessage(data.error || 'Unknown error');
           setBuilding(false);
-          toast.error('Build failed: ' + (data.errorMessage || 'Unknown error'));
+          toast.error('Build failed: ' + (data.error || 'Unknown error'));
           clearInterval(interval);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error checking build status:', error);
         toast.error('Failed to check build status');
+        setBuilding(false);
         clearInterval(interval);
       }
     }, 30000); // Check every 30 seconds
@@ -74,33 +62,10 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
       setStatus('pending');
       setErrorMessage(null);
       
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        toast.error('Authentication required');
-        setBuilding(false);
-        setShowDialog(false);
-        return;
-      }
-
-      const headers = {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-      };
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/build-apk`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ 
-          appHistoryId,
-          platform: 'android' 
-        }),
+      const data = await buildAPK({
+        appHistoryId,
+        platform: 'android'
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to start build: ${response.statusText}`);
-      }
-
-      const data = await response.json();
 
       if (data.buildId) {
         setBuildId(data.buildId);
@@ -109,9 +74,9 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
       } else {
         throw new Error('No build ID returned from server');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error starting build:', error);
-      const errorMsg = error instanceof Error ? error.message : 'Failed to start build';
+      const errorMsg = error.message || 'Failed to start build';
       toast.error(errorMsg);
       setErrorMessage(errorMsg);
       setBuilding(false);
