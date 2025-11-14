@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_CONFIG } from "@/config/backend";
+import { apiGet, apiPost } from "@/utils/api";
 
 interface BuildResponse {
   buildId: string;
@@ -68,14 +69,7 @@ const Dashboard = () => {
 
     const pollStatus = async () => {
       try {
-        const response = await fetch(`${BACKEND_CONFIG.buildStatusUrl}/${buildId}`);
-        
-        if (!response.ok) {
-          console.error('Status check failed:', response.status);
-          return;
-        }
-        
-        const data: BuildStatusResponse = await response.json();
+        const data: BuildStatusResponse = await apiGet(`/api/build-status/${buildId}`);
         console.log('Build status:', data);
         
         setBuildStatus(data);
@@ -116,22 +110,9 @@ const Dashboard = () => {
     try {
       console.log('Attempting to connect to:', BACKEND_CONFIG.generateAppUrl);
       
-      const response = await fetch(BACKEND_CONFIG.generateAppUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectName: projectName.trim() }),
+      const data: BuildResponse = await apiPost('/api/generate-app', { 
+        projectName: projectName.trim() 
       });
-
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error response:', errorText);
-        throw new Error(`Server returned ${response.status}: ${errorText}`);
-      }
-
-      const data: BuildResponse = await response.json();
       console.log('Build started successfully:', data);
       setBuildId(data.buildId);
       setLogs(prev => [...prev, `✅ Build started with ID: ${data.buildId}`]);
