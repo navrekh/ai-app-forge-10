@@ -53,6 +53,19 @@ const Dashboard = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
 
+  // Get user session
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Auto-start build if app idea is passed from Index page
   useEffect(() => {
     const state = location.state as { appIdea?: string } | null;
