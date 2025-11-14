@@ -1,15 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Smartphone } from 'lucide-react';
+import { Smartphone, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 
 interface HeaderProps {
   showAuth?: boolean;
   showDashboard?: boolean;
+  onPublishClick?: () => void;
+  showPublish?: boolean;
 }
 
-export const Header = ({ showAuth = true, showDashboard = true }: HeaderProps) => {
+export const Header = ({ showAuth = true, showDashboard = true, onPublishClick, showPublish = false }: HeaderProps) => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
 
@@ -39,6 +41,12 @@ export const Header = ({ showAuth = true, showDashboard = true }: HeaderProps) =
             <h1 className="text-xl font-bold">AppDev</h1>
           </button>
           <div className="flex items-center gap-3">
+            {showPublish && onPublishClick && (
+              <Button onClick={onPublishClick} className="gradient-primary">
+                <Upload className="mr-2 h-4 w-4" />
+                Publish
+              </Button>
+            )}
             {user ? (
               <>
                 {showDashboard && (

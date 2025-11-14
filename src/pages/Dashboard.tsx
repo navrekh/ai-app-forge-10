@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles } from "lucide-react";
+import { Loader2, Download, Sparkles, Apple } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { ENDPOINTS, BACKEND_API_URL } from "@/config/backend";
 import { api } from "@/utils/api";
 import { Header } from "@/components/Header";
 import { PhoneMockup } from "@/components/PhoneMockup";
+import { PublishDialog } from "@/components/PublishDialog";
 
 interface BuildResponse {
   buildId: string;
@@ -50,6 +51,7 @@ const Dashboard = () => {
   const [buildStatus, setBuildStatus] = useState<BuildStatusResponse | null>(null);
   const [isBuilding, setIsBuilding] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
 
   // Auto-start build if app idea is passed from Index page
   useEffect(() => {
@@ -175,7 +177,19 @@ const Dashboard = () => {
 
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
-        <Header showDashboard={false} />
+        <Header 
+          showDashboard={false} 
+          showPublish={!!buildId && buildStatus?.status === 'completed'}
+          onPublishClick={() => setShowPublishDialog(true)}
+        />
+
+        {/* Publish Dialog */}
+        <PublishDialog
+          open={showPublishDialog}
+          onOpenChange={setShowPublishDialog}
+          projectName={projectName}
+          buildId={buildId || undefined}
+        />
 
         {/* Main Content */}
         <main className="flex-1 container mx-auto px-4 py-8">
@@ -313,17 +327,32 @@ const Dashboard = () => {
                 {/* Action Buttons */}
                 <div className="space-y-3">
                   {buildStatus?.status === 'completed' && buildStatus.downloadUrl && (
-                    <Button
-                      onClick={() => {
-                        window.open(buildStatus.downloadUrl, '_blank');
-                        toast.success('⬇️ APK download started');
-                      }}
-                      size="lg"
-                      className="w-full h-12 gradient-primary"
-                    >
-                      <Download className="mr-2 h-5 w-5" />
-                      Download APK
-                    </Button>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        onClick={() => {
+                          window.open(buildStatus.downloadUrl, '_blank');
+                          toast.success('⬇️ Android APK download started');
+                        }}
+                        size="lg"
+                        className="h-12 gradient-primary"
+                      >
+                        <Download className="mr-2 h-5 w-5" />
+                        Download APK
+                      </Button>
+                      
+                      <Button
+                        onClick={() => {
+                          // TODO: Implement iOS IPA download
+                          toast.info('🍎 iOS IPA build coming soon!');
+                        }}
+                        size="lg"
+                        variant="outline"
+                        className="h-12"
+                      >
+                        <Apple className="mr-2 h-5 w-5" />
+                        Download IPA
+                      </Button>
+                    </div>
                   )}
 
                   {(buildStatus?.status === 'completed' || buildStatus?.status === 'failed') && (
