@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ENDPOINTS, BACKEND_API_URL } from "@/config/backend";
-import { api } from "@/utils/api";
+import { BACKEND_API } from "@/config/backend";
+import { startBuild, getBuildStatus } from "@/api/build";
 import { Header } from "@/components/Header";
 import { PhoneMockup } from "@/components/PhoneMockup";
 import { PublishDialog } from "@/components/PublishDialog";
@@ -86,7 +86,7 @@ const Dashboard = () => {
 
     const pollStatus = async () => {
       try {
-        const { data } = await api.get<BuildStatusResponse>(`/api/build-status/${buildId}`);
+        const data = await getBuildStatus(buildId);
         console.log('Build status:', data);
         
         setBuildStatus(data);
@@ -130,16 +130,14 @@ const Dashboard = () => {
     }
 
     setIsBuilding(true);
-    setLogs(['🚀 Starting build...', `🔗 Connecting to ${BACKEND_API_URL}`]);
+    setLogs(['🚀 Starting build...', `🔗 Connecting to ${BACKEND_API.BASE_URL}`]);
     setBuildStatus(null);
     setBuildId(null);
 
     try {
-      console.log('Attempting to connect to:', ENDPOINTS.START_BUILD);
+      console.log('Attempting to connect to:', BACKEND_API.BASE_URL + BACKEND_API.START_BUILD);
       
-      const { data } = await api.post<BuildResponse>('/api/build/start', {
-        projectName: idea 
-      });
+      const data = await startBuild(idea);
       console.log('Build started successfully:', data);
       setBuildId(data.buildId);
       setLogs(prev => [...prev, `✅ Build started with ID: ${data.buildId}`]);
@@ -148,8 +146,8 @@ const Dashboard = () => {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
       if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-        toast.error('❌ Cannot connect to backend. Please check if the server is running at ' + BACKEND_API_URL);
-        setLogs(prev => [...prev, `❌ Connection failed: Cannot reach ${BACKEND_API_URL}`, '💡 Check: 1) Server is running 2) SSL configured 3) CORS enabled']);
+        toast.error('❌ Cannot connect to backend. Please check if the server is running at ' + BACKEND_API.BASE_URL);
+        setLogs(prev => [...prev, `❌ Connection failed: Cannot reach ${BACKEND_API.BASE_URL}`, '💡 Check: 1) Server is running 2) SSL configured 3) CORS enabled']);
       } else {
         toast.error(`❌ Build failed: ${errorMessage}`);
         setLogs(prev => [...prev, `❌ Error: ${errorMessage}`]);
