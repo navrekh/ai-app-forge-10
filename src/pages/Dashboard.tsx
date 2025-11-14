@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_CONFIG } from "@/config/backend";
-import { apiGet, apiPost } from "@/utils/api";
+import { api } from "@/utils/api";
 
 interface BuildResponse {
   buildId: string;
@@ -69,7 +69,7 @@ const Dashboard = () => {
 
     const pollStatus = async () => {
       try {
-        const data: BuildStatusResponse = await apiGet(`/api/build-status/${buildId}`);
+        const { data } = await api.get<BuildStatusResponse>(`/api/build-status/${buildId}`);
         console.log('Build status:', data);
         
         setBuildStatus(data);
@@ -110,7 +110,7 @@ const Dashboard = () => {
     try {
       console.log('Attempting to connect to:', BACKEND_CONFIG.generateAppUrl);
       
-      const data: BuildResponse = await apiPost('/api/generate-app', { 
+      const { data } = await api.post<BuildResponse>('/api/generate-app', { 
         projectName: projectName.trim() 
       });
       console.log('Build started successfully:', data);
