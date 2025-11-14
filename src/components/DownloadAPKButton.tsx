@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { BACKEND_API } from "@/config/backend";
 
 interface DownloadAPKButtonProps {
   appHistoryId: string;
@@ -37,7 +36,7 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         };
-        const response = await fetch(BACKEND_API.BASE_URL + BACKEND_API.BUILD_STATUS(buildId), { headers });
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/build-status/${buildId}`, { headers });
         
         if (!response.ok) {
           throw new Error(`Failed to check build status: ${response.statusText}`);
@@ -87,7 +86,7 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
       };
-      const response = await fetch(BACKEND_API.BASE_URL + BACKEND_API.BUILD_APK, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/build-apk`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ 

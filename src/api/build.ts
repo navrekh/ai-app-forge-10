@@ -1,17 +1,15 @@
-import axios from "axios";
-import { BACKEND_API } from "../config/backend";
+const API = import.meta.env.VITE_API_URL;
 
-export async function startBuild(projectName: string) {
-  const res = await axios.post(
-    BACKEND_API.BASE_URL + BACKEND_API.START_BUILD,
-    { projectName }
-  );
-  return res.data; // { buildId, status }
+export async function startBuild(data: { projectName: string; prompt: string; screens: any[] }) {
+  const res = await fetch(`${API}/api/build/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return res.json();
 }
 
 export async function getBuildStatus(buildId: string) {
-  const res = await axios.get(
-    BACKEND_API.BASE_URL + BACKEND_API.BUILD_STATUS(buildId)
-  );
-  return res.data;
+  const res = await fetch(`${API}/api/build-status/${buildId}`);
+  return res.json();
 }
