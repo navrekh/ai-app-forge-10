@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { BACKEND_CONFIG } from "@/config/backend";
+import { ENDPOINTS, BACKEND_API_URL } from "@/config/backend";
 import { api } from "@/utils/api";
 
 interface BuildResponse {
@@ -103,14 +103,14 @@ const Dashboard = () => {
     }
 
     setIsBuilding(true);
-    setLogs(['🚀 Starting build...', `🔗 Connecting to ${BACKEND_CONFIG.apiBaseUrl}`]);
+    setLogs(['🚀 Starting build...', `🔗 Connecting to ${BACKEND_API_URL}`]);
     setBuildStatus(null);
     setBuildId(null);
 
     try {
-      console.log('Attempting to connect to:', BACKEND_CONFIG.generateAppUrl);
+      console.log('Attempting to connect to:', ENDPOINTS.START_BUILD);
       
-      const { data } = await api.post<BuildResponse>('/api/generate-app', { 
+      const { data } = await api.post<BuildResponse>('/api/build/start', {
         projectName: projectName.trim() 
       });
       console.log('Build started successfully:', data);
@@ -121,8 +121,8 @@ const Dashboard = () => {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
       if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-        toast.error('❌ Cannot connect to backend. Please check if the server is running at ' + BACKEND_CONFIG.apiBaseUrl);
-        setLogs(prev => [...prev, `❌ Connection failed: Cannot reach ${BACKEND_CONFIG.apiBaseUrl}`, '💡 Check: 1) Server is running 2) SSL configured 3) CORS enabled']);
+        toast.error('❌ Cannot connect to backend. Please check if the server is running at ' + BACKEND_API_URL);
+        setLogs(prev => [...prev, `❌ Connection failed: Cannot reach ${BACKEND_API_URL}`, '💡 Check: 1) Server is running 2) SSL configured 3) CORS enabled']);
       } else {
         toast.error(`❌ Build failed: ${errorMessage}`);
         setLogs(prev => [...prev, `❌ Error: ${errorMessage}`]);

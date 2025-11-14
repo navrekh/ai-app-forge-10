@@ -105,7 +105,7 @@ const Index = () => {
     setBuildId(null);
 
     try {
-      const { data } = await api.post<{ buildId: string; status: string }>('/api/generate-app', { 
+      const { data } = await api.post<{ buildId: string; status: string }>('/api/build/start', { 
         projectName: appIdea.trim() 
       });
       setBuildId(data.buildId);
