@@ -210,6 +210,22 @@ const Index = () => {
                       Join thousands building amazing apps with AI
                     </p>
                   </div>
+
+                  {/* Quick stats */}
+                  <div className="grid grid-cols-3 gap-4 pt-8">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-primary">30s</div>
+                      <div className="text-sm text-muted-foreground">Avg. Generation Time</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-primary">10k+</div>
+                      <div className="text-sm text-muted-foreground">Apps Created</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-primary">100%</div>
+                      <div className="text-sm text-muted-foreground">AI-Powered</div>
+                    </div>
+                  </div>
                 </>
               ) : (
                 <>
@@ -266,9 +282,6 @@ const Index = () => {
                   )}
                 </>
               )}
-                  <Sparkles className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                </div>
-
             </div>
 
             {/* Right side - Phone Mockup */}
