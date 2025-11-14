@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { ENDPOINTS, getAuthHeaders } from "@/config/backend";
+import { BACKEND_API } from "@/config/backend";
 
 interface DownloadAPKButtonProps {
   appHistoryId: string;
@@ -33,8 +33,11 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) return;
 
-        const headers = await getAuthHeaders(session.access_token);
-        const response = await fetch(ENDPOINTS.BUILD_STATUS(buildId), { headers });
+        const headers = {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        };
+        const response = await fetch(BACKEND_API.BASE_URL + BACKEND_API.BUILD_STATUS(buildId), { headers });
         
         if (!response.ok) {
           throw new Error(`Failed to check build status: ${response.statusText}`);
@@ -80,8 +83,11 @@ export const DownloadAPKButton = ({ appHistoryId, disabled }: DownloadAPKButtonP
         return;
       }
 
-      const headers = await getAuthHeaders(session.access_token);
-      const response = await fetch(ENDPOINTS.BUILD_APK, {
+      const headers = {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      };
+      const response = await fetch(BACKEND_API.BASE_URL + BACKEND_API.BUILD_APK, {
         method: 'POST',
         headers,
         body: JSON.stringify({ 
