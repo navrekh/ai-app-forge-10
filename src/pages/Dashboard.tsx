@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Download, Sparkles, Apple } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
-import { startBuild, getBuildStatus } from "@/api/build";
+import { buildService } from "@/api/buildService";
+import { BuildProgress } from "@/components/BuildProgress";
 import { Header } from "@/components/Header";
 import { PhoneMockup } from "@/components/PhoneMockup";
 import { PublishDialog } from "@/components/PublishDialog";
@@ -64,61 +65,6 @@ const Dashboard = () => {
     }
   }, [location.state, user]);
 
-  // Check auth state
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Poll build status every 3 seconds
-  useEffect(() => {
-    if (!buildId || buildStatus?.status === 'completed' || buildStatus?.status === 'failed') {
-      return;
-    }
-
-    const pollStatus = async () => {
-      try {
-        const data = await getBuildStatus(buildId);
-        console.log('Build status:', data);
-        
-        setBuildStatus(data);
-        
-        // Update logs only when status changes
-        if (data.status !== buildStatus?.status) {
-          const emoji = STATUS_EMOJI[data.status] || '⏳';
-          const label = STATUS_LABELS[data.status] || 'Processing';
-          setLogs(prev => [...prev, `${emoji} ${label}... (${data.progress}%)`]);
-        }
-
-        if (data.status === 'completed') {
-          setIsBuilding(false);
-          toast.success('🎉 Build complete! APK ready for download.');
-        } else if (data.status === 'failed') {
-          setIsBuilding(false);
-          toast.error('❌ Build failed. Please try again.');
-        }
-      } catch (error: any) {
-        console.error('Failed to fetch build status:', error);
-        setIsBuilding(false);
-        toast.error(`❌ Failed to check build status: ${error.message}`);
-        setLogs(prev => [...prev, `❌ Error: ${error.message}`, `💡 Check if backend is running at ${import.meta.env.VITE_API_URL}`]);
-        setBuildId(null); // Stop polling
-      }
-    };
-
-    const interval = setInterval(pollStatus, 3000); // Poll every 3 seconds
-    pollStatus(); // Initial call
-
-    return () => clearInterval(interval);
-  }, [buildId, buildStatus?.status]);
-
   const handleStartBuild = async (ideaFromProps?: string) => {
     const idea = ideaFromProps || projectName.trim();
     
@@ -133,16 +79,22 @@ const Dashboard = () => {
     setBuildId(null);
 
     try {
-      console.log('Attempting to connect to:', `${import.meta.env.VITE_API_URL}/api/build/start`);
+      console.log('Attempting to start build...');
       
-      const data = await startBuild({
+      const data = await buildService.startBuild({
         projectName: idea.substring(0, 50) || "My App",
         prompt: idea,
         screens: [],
       });
+      
       console.log('Build started successfully:', data);
       setBuildId(data.buildId);
       setLogs(prev => [...prev, `✅ Build started with ID: ${data.buildId}`]);
+      
+      toast.success('🎉 Build started!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     } catch (error) {
       console.error('Build error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -266,50 +218,23 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="grid lg:grid-cols-2 gap-8 items-start max-w-7xl mx-auto">
-              {/* Left side - Build Progress & Logs */}
+              {/* Left side - Build Progress Component */}
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Building Your App
-                  </div>
-
-                  <h2 className="text-4xl font-bold">
-                    Creating
-                    <span className="block text-primary mt-2">{projectName}</span>
-                  </h2>
-                </div>
-
-                {/* Status Display */}
-                {buildStatus && (
-                  <div className="bg-card rounded-xl border p-6 space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 border border-primary/20">
-                        <span className="text-4xl">{STATUS_EMOJI[buildStatus.status]}</span>
-                      </div>
-                      
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-foreground">
-                          {STATUS_LABELS[buildStatus.status]}
-                        </h3>
-                        <p className="text-sm text-muted-foreground font-mono">
-                          Build ID: {buildId.slice(0, 12)}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    {buildStatus.status !== 'completed' && buildStatus.status !== 'failed' && (
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Progress</span>
-                          <span className="font-semibold text-foreground">{buildStatus.progress}%</span>
-                        </div>
-                        <Progress value={buildStatus.progress} className="h-2" />
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* New BuildProgress Component */}
+                <BuildProgress 
+                  buildId={buildId}
+                  onDownload={() => {
+                    if (buildStatus?.downloadUrl) {
+                      window.open(buildStatus.downloadUrl, '_blank');
+                      toast.success('⬇️ Download started!');
+                    }
+                  }}
+                  onCancel={() => {
+                    setBuildId(null);
+                    setIsBuilding(false);
+                    toast.info('Build cancelled');
+                  }}
+                />
 
                 {/* Build Logs */}
                 <div className="bg-card rounded-xl border p-4 space-y-2 max-h-96 overflow-y-auto">
@@ -342,7 +267,6 @@ const Dashboard = () => {
                       
                       <Button
                         onClick={() => {
-                          // TODO: Implement iOS IPA download
                           toast.info('🍎 iOS IPA build coming soon!');
                         }}
                         size="lg"
