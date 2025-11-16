@@ -155,9 +155,9 @@ const Index = () => {
 
           {/* Phone Mockups with Hands */}
           <div className="relative pb-20">
-            <div className="flex justify-center gap-8 items-end">
-              {/* Left Phone - Fitness App */}
-              <div className="transform hover:scale-105 transition-transform duration-300 relative">
+            <div className="flex justify-center gap-12 items-center">
+              {/* Left Phone - React Native */}
+              <div className="transform hover:scale-105 transition-all duration-500 hover:rotate-2 relative animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 {/* Hand holding phone */}
                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[280px] h-[140px] bg-gradient-to-br from-amber-200 to-amber-300 rounded-t-full opacity-80 shadow-xl" 
                      style={{ clipPath: 'ellipse(50% 100% at 50% 100%)' }}>
@@ -166,30 +166,16 @@ const Index = () => {
                 </div>
                 <div className="relative z-10">
                   <PhoneMockup>
-                    <div className="h-full bg-gradient-to-br from-green-50 to-emerald-50 p-6">
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-2xl font-bold text-gray-800">FitTrack</h2>
-                          <div className="w-12 h-12 rounded-full bg-green-500" />
+                    <div className="h-full bg-gradient-to-br from-cyan-50 to-blue-50 flex items-center justify-center p-6">
+                      <div className="text-center space-y-6">
+                        <div className="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-2xl transform hover:rotate-12 transition-transform">
+                          <svg viewBox="0 0 24 24" className="w-20 h-20 text-white">
+                            <path fill="currentColor" d="M12 10.11c1.03 0 1.87.84 1.87 1.89 0 1-.84 1.85-1.87 1.85S10.13 13 10.13 12c0-1.05.84-1.89 1.87-1.89M7.37 20c.63.38 2.01-.2 3.6-1.7-.52-.59-1.03-1.23-1.51-1.9a22.7 22.7 0 0 1-2.4-.36c-.51 2.14-.32 3.61.31 3.96m.71-5.74-.29-.51c-.11.29-.22.58-.29.86.27.06.57.11.88.16l-.3-.51m6.54-.76.81-1.5-.81-1.5c-.3-.53-.62-1-.91-1.47C13.17 9 12.6 9 12 9s-1.17 0-1.71.03c-.29.47-.61.94-.91 1.47L8.57 12l.81 1.5c.3.53.62 1 .91 1.47.54.03 1.11.03 1.71.03s1.17 0 1.71-.03c.29-.47.61-.94.91-1.47M12 6.78c-.19.22-.39.45-.59.72h1.18c-.2-.27-.4-.5-.59-.72m0 10.44c.19-.22.39-.45.59-.72h-1.18c.2.27.4.5.59.72M16.62 4c-.62-.38-2 .2-3.59 1.7.52.59 1.03 1.23 1.51 1.9.82.08 1.63.2 2.4.36.51-2.14.32-3.61-.32-3.96m-.7 5.74.29.51c.11-.29.22-.58.29-.86-.27-.06-.57-.11-.88-.16l.3.51m1.45-7.05c1.47.84 1.63 3.05 1.01 5.63 2.54.75 4.37 1.99 4.37 3.68s-1.83 2.93-4.37 3.68c.62 2.58.46 4.79-1.01 5.63-1.46.84-3.45-.12-5.37-1.95-1.92 1.83-3.91 2.79-5.38 1.95-1.46-.84-1.62-3.05-1-5.63-2.54-.75-4.37-1.99-4.37-3.68s1.83-2.93 4.37-3.68c-.62-2.58-.46-4.79 1-5.63 1.47-.84 3.46.12 5.38 1.95 1.92-1.83 3.91-2.79 5.37-1.95M17.08 12c.34.75.64 1.5.89 2.26 2.1-.63 3.28-1.53 3.28-2.26s-1.18-1.63-3.28-2.26c-.25.76-.55 1.51-.89 2.26M6.92 12c-.34-.75-.64-1.5-.89-2.26-2.1.63-3.28 1.53-3.28 2.26s1.18 1.63 3.28 2.26c.25-.76.55-1.51.89-2.26m9.06 0c.45-1.29.72-2.57.79-3.76-.85-.09-1.76-.14-2.77-.14s-1.92.05-2.77.14c.07 1.19.34 2.47.79 3.76.45 1.29.72 2.57.79 3.76.85.09 1.76.14 2.77.14s1.92-.05 2.77-.14c-.07-1.19-.34-2.47-.79-3.76-.45-1.29-.72-2.57-.79-3.76z"/>
+                          </svg>
                         </div>
-                        <div className="bg-white rounded-2xl p-6 shadow-lg">
-                          <div className="text-sm text-gray-600 mb-2">Today's Progress</div>
-                          <div className="text-4xl font-bold text-green-600">8,547</div>
-                          <div className="text-sm text-gray-600">steps</div>
-                        </div>
-                        <div className="space-y-3">
-                          <div className="bg-white rounded-xl p-4 shadow">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-700">Calories</span>
-                              <span className="font-semibold text-orange-600">342 kcal</span>
-                            </div>
-                          </div>
-                          <div className="bg-white rounded-xl p-4 shadow">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-700">Distance</span>
-                              <span className="font-semibold text-blue-600">6.2 km</span>
-                            </div>
-                          </div>
+                        <div>
+                          <h3 className="text-3xl font-bold text-gray-800 mb-2">React Native</h3>
+                          <p className="text-sm text-gray-600">Build native apps with React</p>
                         </div>
                       </div>
                     </div>
@@ -197,8 +183,8 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Center Phone - Social Media App */}
-              <div className="transform hover:scale-105 transition-transform duration-300 scale-110 relative">
+              {/* Center Phone - Flutter */}
+              <div className="transform hover:scale-105 transition-all duration-500 hover:rotate-2 scale-110 relative animate-fade-in" style={{ animationDelay: '0.2s' }}>
                 {/* Hand holding phone */}
                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[300px] h-[150px] bg-gradient-to-br from-amber-200 to-amber-300 rounded-t-full opacity-80 shadow-xl" 
                      style={{ clipPath: 'ellipse(50% 100% at 50% 100%)' }}>
@@ -207,23 +193,16 @@ const Index = () => {
                 </div>
                 <div className="relative z-10">
                   <PhoneMockup>
-                    <div className="h-full bg-gradient-to-br from-purple-50 to-pink-50 p-6">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-2xl font-bold text-gray-800">ChatApp</h2>
-                          <div className="w-10 h-10 rounded-full bg-purple-500" />
+                    <div className="h-full bg-gradient-to-br from-blue-50 to-sky-50 flex items-center justify-center p-6">
+                      <div className="text-center space-y-6">
+                        <div className="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-br from-blue-500 to-sky-600 flex items-center justify-center shadow-2xl transform hover:rotate-12 transition-transform">
+                          <svg viewBox="0 0 24 24" className="w-20 h-20 text-white">
+                            <path fill="currentColor" d="M14.3 0L8.1 6.2l3.9 3.9L20.2 2zM2.1 7.2L.2 9.1c-.3.3-.3.8 0 1.1L9.1 19l1.9-1.9-8.9-9.9zm12.2 4.8l-3.9 3.9 6.2 6.2 8.1-8.1-10.4-2zm-6.2 6.2L2 24h8.1l6.2-6.2-3.9-3.9z"/>
+                          </svg>
                         </div>
-                        <div className="space-y-3">
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-white rounded-2xl p-4 shadow-lg flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400" />
-                              <div className="flex-1">
-                                <div className="font-semibold text-gray-800">User {i}</div>
-                                <div className="text-sm text-gray-500">Hey! How are you?</div>
-                              </div>
-                              <div className="text-xs text-gray-400">2m</div>
-                            </div>
-                          ))}
+                        <div>
+                          <h3 className="text-3xl font-bold text-gray-800 mb-2">Flutter</h3>
+                          <p className="text-sm text-gray-600">Beautiful native experiences</p>
                         </div>
                       </div>
                     </div>
@@ -231,8 +210,8 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Right Phone - Task Management App */}
-              <div className="transform hover:scale-105 transition-transform duration-300 relative">
+              {/* Right Phone - Node.js */}
+              <div className="transform hover:scale-105 transition-all duration-500 hover:rotate-2 relative animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 {/* Hand holding phone */}
                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[280px] h-[140px] bg-gradient-to-br from-amber-200 to-amber-300 rounded-t-full opacity-80 shadow-xl" 
                      style={{ clipPath: 'ellipse(50% 100% at 50% 100%)' }}>
@@ -241,42 +220,16 @@ const Index = () => {
                 </div>
                 <div className="relative z-10">
                   <PhoneMockup>
-                    <div className="h-full bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-2xl font-bold text-gray-800">TaskFlow</h2>
-                          <div className="w-12 h-12 rounded-full bg-blue-500" />
+                    <div className="h-full bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-6">
+                      <div className="text-center space-y-6">
+                        <div className="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center shadow-2xl transform hover:rotate-12 transition-transform">
+                          <svg viewBox="0 0 24 24" className="w-20 h-20 text-white">
+                            <path fill="currentColor" d="M12 1.85c-.27 0-.55.07-.78.2l-7.44 4.3c-.48.28-.78.8-.78 1.36v8.58c0 .56.3 1.08.78 1.36l1.95 1.12c.95.46 1.27.47 1.71.47 1.4 0 2.21-.85 2.21-2.33V8.44c0-.12-.1-.22-.22-.22H8.5c-.13 0-.23.1-.23.22v8.47c0 .66-.68 1.31-1.77.76L4.45 16.5a.26.26 0 0 1-.11-.21V7.71c0-.09.04-.17.11-.21l7.44-4.29c.06-.04.16-.04.22 0l7.44 4.29c.07.04.11.12.11.21v8.58c0 .08-.04.16-.11.21l-7.44 4.29c-.06.04-.16.04-.22 0L10 19.65c-.07-.03-.14-.04-.21-.01-.63.35-1.12.6-1.4.72-.37.15-.87.38.07.88l2.41 1.4c.24.13.51.2.78.2s.54-.07.78-.2l7.44-4.3c.48-.28.78-.8.78-1.36V7.71c0-.56-.3-1.08-.78-1.36l-7.44-4.3c-.23-.13-.5-.2-.78-.2zM14 8c-2.12 0-3.39.89-3.39 2.39 0 1.61 1.26 2.08 3.3 2.28 2.43.24 2.62.6 2.62 1.08 0 .83-.67 1.18-2.23 1.18-1.98 0-2.4-.49-2.55-1.47a.226.226 0 0 0-.22-.18h-.96c-.12 0-.21.09-.21.22 0 1.24.68 2.74 3.94 2.74 2.35 0 3.7-.93 3.7-2.55 0-1.61-1.08-2.03-3.37-2.34-2.31-.3-2.54-.46-2.54-1 0-.45.2-1.05 1.91-1.05 1.5 0 2.09.33 2.32 1.36.02.1.11.17.21.17h.97c.05 0 .11-.02.15-.07.04-.04.07-.1.05-.16C17.56 8.82 16.38 8 14 8z"/>
+                          </svg>
                         </div>
-                        <div className="space-y-3">
-                          <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-blue-500">
-                            <div className="flex items-start gap-3">
-                              <div className="w-5 h-5 rounded border-2 border-blue-500 mt-1" />
-                              <div className="flex-1">
-                                <div className="font-semibold text-gray-800">Design new mockups</div>
-                                <div className="text-sm text-gray-500">Due: Today</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-green-500">
-                            <div className="flex items-start gap-3">
-                              <div className="w-5 h-5 rounded border-2 border-green-500 flex items-center justify-center">
-                                <div className="w-3 h-3 bg-green-500 rounded" />
-                              </div>
-                              <div className="flex-1">
-                                <div className="font-semibold text-gray-800 line-through">Review PR</div>
-                                <div className="text-sm text-gray-500">Completed</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-orange-500">
-                            <div className="flex items-start gap-3">
-                              <div className="w-5 h-5 rounded border-2 border-orange-500 mt-1" />
-                              <div className="flex-1">
-                                <div className="font-semibold text-gray-800">Team meeting</div>
-                                <div className="text-sm text-gray-500">Due: Tomorrow</div>
-                              </div>
-                            </div>
-                          </div>
+                        <div>
+                          <h3 className="text-3xl font-bold text-gray-800 mb-2">Node.js</h3>
+                          <p className="text-sm text-gray-600">JavaScript runtime for backend</p>
                         </div>
                       </div>
                     </div>
