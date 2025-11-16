@@ -155,15 +155,15 @@ const Dashboard = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={() => setShowPublishModal(true)}>
+          <Button variant="ghost" size="sm" onClick={() => setShowPublishModal(true)}>
             <Upload className="w-4 h-4 mr-2" />
             Publish
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/projects')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/projects')}>
             <FolderOpen className="w-4 h-4 mr-2" />
             Projects
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
