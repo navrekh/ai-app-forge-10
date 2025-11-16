@@ -77,7 +77,7 @@ const Index = () => {
               <div className="flex items-center gap-3">
                 {user ? (
                   <>
-                    <Button onClick={() => navigate('/dashboard')} variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/10 hover:text-white">
+                    <Button onClick={() => navigate('/dashboard')} variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">
                       Dashboard
                     </Button>
                     <Button onClick={() => navigate('/profile')} variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">
@@ -85,7 +85,7 @@ const Index = () => {
                     </Button>
                   </>
                 ) : (
-                  <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/10 hover:text-white">
+                  <Button onClick={() => navigate('/auth')} variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">
                     Get the app
                   </Button>
                 )}
