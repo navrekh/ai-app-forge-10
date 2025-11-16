@@ -138,7 +138,7 @@ const Index = () => {
                 size="lg"
                 className="w-full h-16 text-lg bg-white text-primary hover:bg-white/90 shadow-xl font-semibold hover:scale-105 transition-transform"
               >
-                Start Building Free
+                Create Your App Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
