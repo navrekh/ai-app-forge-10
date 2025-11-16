@@ -36,41 +36,54 @@ const Index = () => {
       return;
     }
 
-    // Redirect to dashboard with the app idea
     navigate('/dashboard', { state: { appIdea: appIdea.trim() } });
   };
 
   return (
-    <div className="min-h-screen gradient-hero relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary/95 to-primary/90 relative overflow-hidden">
+      {/* Animated background pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{ 
+          backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }} />
       </div>
 
       <div className="relative z-10">
-        <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
-          <div className="container mx-auto px-4 py-4">
+        {/* Navigation */}
+        <header className="border-b border-white/10 backdrop-blur-sm">
+          <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-glow">
-                  <Smartphone className="h-5 w-5 text-primary-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
+                  <Smartphone className="h-5 w-5 text-primary" />
                 </div>
-                <h1 className="text-xl font-bold">AppDev</h1>
+                <h1 className="text-2xl font-bold text-white">AppDev</h1>
               </div>
+              <nav className="hidden md:flex items-center gap-8">
+                <button className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  Learn
+                </button>
+                <button onClick={() => navigate('/pricing')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  Pricing
+                </button>
+                <button onClick={() => navigate('/contact')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  Support
+                </button>
+              </nav>
               <div className="flex items-center gap-3">
                 {user ? (
                   <>
-                    <Button onClick={() => navigate('/dashboard')} variant="outline">
+                    <Button onClick={() => navigate('/dashboard')} variant="secondary" size="sm">
                       Dashboard
                     </Button>
-                    <Button onClick={() => navigate('/profile')} variant="ghost">
+                    <Button onClick={() => navigate('/profile')} variant="ghost" size="sm" className="text-white hover:bg-white/10">
                       Profile
                     </Button>
                   </>
                 ) : (
-                  <Button onClick={() => navigate('/auth')} variant="outline">
-                    Sign In
+                  <Button onClick={() => navigate('/auth')} variant="secondary" size="sm">
+                    Get the app
                   </Button>
                 )}
               </div>
@@ -78,146 +91,214 @@ const Index = () => {
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-12">
-          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
-            {/* Left side - Creation Interface */}
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                <Sparkles className="h-4 w-4" />
-                AI-Powered App Generation
-              </div>
-
-              <div className="space-y-4">
-                <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                  Start Creating{' '}
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    Your App
-                  </span>
-                </h1>
-                
-                <p className="text-xl text-muted-foreground">
-                  Describe your app idea and watch it come to life in seconds. No coding required.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="relative">
-                  <Input
-                    placeholder="e.g., A fitness tracking app with workout routines..."
-                    value={appIdea}
-                    onChange={(e) => setAppIdea(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleStartCreating()}
-                    className="h-14 text-lg pr-12 bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary"
-                  />
-                  <button
-                    onClick={handleStartCreating}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
-                  >
-                    <Sparkles className="w-5 h-5 text-primary" />
-                  </button>
-                </div>
-
-                <Button
-                  onClick={handleStartCreating}
-                  size="lg"
-                  className="w-full h-14 text-lg group"
-                >
-                  {user ? 'Start Building' : 'Sign In to Start'}
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-
-                <p className="text-sm text-center text-muted-foreground">
-                  Join thousands building amazing apps with AI
-                </p>
-              </div>
-
-              {/* Quick stats */}
-              <div className="grid grid-cols-3 gap-4 pt-8">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">30s</div>
-                  <div className="text-sm text-muted-foreground">Avg. Generation Time</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">10k+</div>
-                  <div className="text-sm text-muted-foreground">Apps Created</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">100%</div>
-                  <div className="text-sm text-muted-foreground">AI-Powered</div>
-                </div>
-              </div>
+        {/* Hero Section */}
+        <main className="container mx-auto px-6 py-16 md:py-24">
+          <div className="max-w-4xl mx-auto text-center space-y-8 mb-16">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 text-white/90 text-sm font-medium">
+              <Sparkles className="h-4 w-4" />
+              THE #1 APP FOR AI APP GENERATION
+              <Sparkles className="h-4 w-4" />
             </div>
 
-            {/* Right side - Phone Mockup */}
-            <div className="relative">
-              <div className="relative animate-fade-in">
+            {/* Main Headline */}
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+              The easy way to build
+              <br />
+              Mobile Apps with AI
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
+              That's how millions of smart creators build their apps. Stress-Free
+            </p>
+
+            {/* CTA Input */}
+            <div className="max-w-2xl mx-auto space-y-4 pt-4">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="E.g., A fitness tracker with meal planning..."
+                  value={appIdea}
+                  onChange={(e) => setAppIdea(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleStartCreating();
+                    }
+                  }}
+                  className="h-16 text-lg bg-white/95 border-0 shadow-xl"
+                />
+              </div>
+              
+              <Button 
+                onClick={handleStartCreating}
+                size="lg"
+                className="w-full h-16 text-lg bg-white text-primary hover:bg-white/90 shadow-xl font-semibold"
+              >
+                Start Building Free
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-white/90 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span>No Coding Required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span>Built with AI Technology</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Phone Mockups */}
+          <div className="relative max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+              {/* Left Phone */}
+              <div className="transform md:translate-y-8 opacity-90">
                 <PhoneMockup>
-                  <div className="h-full bg-gradient-to-br from-primary/20 to-accent/20 p-6 flex flex-col items-center justify-center space-y-6">
-                    <div className="w-full space-y-4">
-                      {/* Mock app interface */}
-                      <div className="rounded-xl bg-card p-4 shadow-lg">
-                        <div className="h-3 w-3/4 bg-primary/30 rounded mb-3" />
-                        <div className="h-2 w-full bg-muted/30 rounded mb-2" />
-                        <div className="h-2 w-2/3 bg-muted/30 rounded" />
-                      </div>
-                      
-                      <div className="rounded-xl bg-card p-4 shadow-lg">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="h-10 w-10 rounded-full bg-accent/30" />
-                          <div className="h-3 w-24 bg-primary/30 rounded" />
-                        </div>
-                        <div className="h-2 w-full bg-muted/30 rounded mb-2" />
-                        <div className="h-2 w-4/5 bg-muted/30 rounded" />
-                      </div>
-
-                      <div className="rounded-xl bg-gradient-primary p-4 shadow-glow">
-                        <div className="h-3 w-32 bg-primary-foreground/80 rounded mb-2" />
-                        <div className="h-2 w-24 bg-primary-foreground/60 rounded" />
-                      </div>
+                  <div className="h-full bg-background p-6 flex flex-col">
+                    <div className="text-center mb-6">
+                      <div className="text-3xl font-bold text-foreground">$33,600</div>
+                      <div className="text-sm text-muted-foreground">Total Portfolio</div>
                     </div>
-
-                    <div className="text-center space-y-2 pt-4">
-                      <Sparkles className="h-8 w-8 text-primary mx-auto animate-pulse" />
-                      <p className="text-sm font-medium text-foreground">Your app preview</p>
+                    <div className="flex-1 bg-primary/10 rounded-2xl p-4 mb-4">
+                      <svg className="w-full h-32" viewBox="0 0 100 50">
+                        <path d="M 0,40 Q 25,20 50,30 T 100,25" stroke="currentColor" fill="none" strokeWidth="2" className="text-primary" />
+                      </svg>
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-primary/20" />
+                            <div className="text-xs font-medium">Investment {i}</div>
+                          </div>
+                          <div className="text-xs font-bold">${(i * 234).toFixed(2)}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </PhoneMockup>
               </div>
 
-              {/* Floating elements */}
-              <div className="absolute -top-4 -right-4 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 p-4 shadow-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm font-medium">AI Active</span>
-                </div>
+              {/* Center Phone */}
+              <div className="transform md:scale-110 shadow-2xl">
+                <PhoneMockup>
+                  <div className="h-full bg-background p-6 flex flex-col">
+                    <div className="text-xl font-bold mb-6">Investment Options</div>
+                    <div className="flex-1 space-y-4">
+                      {[
+                        { name: 'US Treasury Bill', rate: '5.3%' },
+                        { name: 'US Treasury Bill', rate: '5.2%' },
+                        { name: 'US Treasury Bill', rate: '5.1%' },
+                        { name: 'US Treasury Bill', rate: '5.0%' }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Smartphone className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium">{item.name}</div>
+                              <div className="text-xs text-muted-foreground">{item.rate}</div>
+                            </div>
+                          </div>
+                          <Button size="sm" className="h-8">
+                            Buy
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </PhoneMockup>
               </div>
+
+              {/* Right Phone */}
+              <div className="transform md:translate-y-8 opacity-90">
+                <PhoneMockup>
+                  <div className="h-full bg-background p-6 flex flex-col">
+                    <div className="text-center mb-6">
+                      <div className="text-3xl font-bold text-foreground">$341,448</div>
+                      <div className="text-sm text-muted-foreground">AppDev Balance</div>
+                    </div>
+                    <div className="flex justify-center gap-2 mb-6">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
+                          {i}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex-1 space-y-4">
+                      <div className="p-4 bg-muted/30 rounded-xl">
+                        <div className="text-sm font-medium mb-2">Buying Power</div>
+                        <div className="text-2xl font-bold">$88,350.00</div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium">Your Holdings</div>
+                        {[1, 2].map((i) => (
+                          <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-primary/20" />
+                              <span className="text-xs">T-Bill {i}</span>
+                            </div>
+                            <span className="text-xs font-bold">${i * 1234}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </PhoneMockup>
+              </div>
+            </div>
+
+            {/* Shadow effect under phones */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-black/20 blur-3xl -z-10" />
+          </div>
+
+          {/* Statistics */}
+          <div className="max-w-4xl mx-auto mt-24 grid grid-cols-3 gap-8 text-center text-white">
+            <div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">10K+</div>
+              <div className="text-white/80">Apps Created</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">5K+</div>
+              <div className="text-white/80">Happy Users</div>
+            </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">30s</div>
+              <div className="text-white/80">Avg Build Time</div>
             </div>
           </div>
         </main>
 
-        <footer className="border-t border-border/50 mt-20">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex flex-wrap justify-center gap-6 text-sm">
-                <button onClick={() => navigate('/pricing')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Pricing
+        {/* Footer */}
+        <footer className="border-t border-white/10 mt-24">
+          <div className="container mx-auto px-6 py-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/70">
+              <div>© 2024 AppDev. All rights reserved.</div>
+              <div className="flex gap-6">
+                <button onClick={() => navigate('/terms')} className="hover:text-white transition-colors">
+                  Terms
                 </button>
-                <button onClick={() => navigate('/terms')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Terms & Conditions
+                <button onClick={() => navigate('/privacy')} className="hover:text-white transition-colors">
+                  Privacy
                 </button>
-                <button onClick={() => navigate('/privacy')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Privacy Policy
-                </button>
-                <button onClick={() => navigate('/refunds')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Refunds
-                </button>
-                <button onClick={() => navigate('/contact')} className="text-muted-foreground hover:text-primary transition-colors">
-                  Contact Us
+                <button onClick={() => navigate('/contact')} className="hover:text-white transition-colors">
+                  Contact
                 </button>
               </div>
-              <p className="text-center text-sm text-muted-foreground">
-                © 2025 AppDev. Generate mobile apps with AI.
-              </p>
             </div>
           </div>
         </footer>
