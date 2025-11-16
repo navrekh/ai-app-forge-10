@@ -40,7 +40,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary/95 to-accent relative overflow-hidden">
       {/* Animated background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{ 
@@ -133,7 +133,7 @@ const Index = () => {
               <Button 
                 onClick={handleStartCreating}
                 size="lg"
-                className="w-full h-16 text-lg bg-white text-purple-600 hover:bg-white/90 shadow-xl font-semibold hover:scale-105 transition-transform"
+                className="w-full h-16 text-lg bg-white text-primary hover:bg-white/90 shadow-xl font-semibold hover:scale-105 transition-transform"
               >
                 Start Building Free
                 <ArrowRight className="ml-2 h-5 w-5" />
