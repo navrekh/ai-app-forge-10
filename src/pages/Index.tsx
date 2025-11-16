@@ -40,7 +40,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-primary/95 to-primary/90 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 relative overflow-hidden">
       {/* Animated background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{ 
@@ -155,7 +155,7 @@ const Index = () => {
 
           {/* Phone Mockups with Hands */}
           <div className="relative pb-20">
-            <div className="flex justify-center gap-12 items-center">
+            <div className="flex justify-center gap-12 items-end">
               {/* Left Phone - React Native */}
               <div className="transform hover:scale-105 transition-all duration-500 hover:rotate-2 relative animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 {/* Hand holding phone */}
