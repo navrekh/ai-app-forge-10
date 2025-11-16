@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
+import Templates from "./pages/Templates";
+import FigmaImport from "./pages/FigmaImport";
 import PreviewApp from "./pages/PreviewApp";
 import BuildsHistory from "./pages/BuildsHistory";
 import UserProfile from "./pages/UserProfile";
@@ -29,6 +31,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/figma-import" element={<FigmaImport />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/project/:id" element={<ProtectedRoute><PreviewApp /></ProtectedRoute>} />
