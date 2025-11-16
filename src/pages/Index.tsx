@@ -106,9 +106,9 @@ const Index = () => {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
-              Turn Figma Designs
+              Build Production-Ready
               <br />
-              Into Real Mobile Apps
+              Mobile Apps in Minutes
             </h1>
 
             {/* Subheadline */}
