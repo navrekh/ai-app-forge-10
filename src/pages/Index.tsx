@@ -58,11 +58,14 @@ const Index = () => {
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
                   <Smartphone className="h-5 w-5 text-primary" />
                 </div>
-                <h1 className="text-2xl font-bold text-white">AppDev</h1>
+                <h1 className="text-2xl font-bold text-white">MobileDev</h1>
               </div>
               <nav className="hidden md:flex items-center gap-8">
-                <button className="text-white/90 hover:text-white transition-colors text-sm font-medium">
-                  Learn
+                <button onClick={() => navigate('/templates')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  Templates
+                </button>
+                <button onClick={() => navigate('/figma-import')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+                  Figma Import
                 </button>
                 <button onClick={() => navigate('/pricing')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
                   Pricing
@@ -103,14 +106,14 @@ const Index = () => {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
-              The easy way to build
+              Turn Figma Designs
               <br />
-              Mobile Apps with AI
+              Into Real Mobile Apps
             </h1>
 
             {/* Subheadline */}
             <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
-              That's how millions of smart creators build their apps. Stress-Free
+              AI-powered platform that converts your designs into production-ready APK & IPA files
             </p>
 
             {/* CTA Input */}
@@ -118,7 +121,7 @@ const Index = () => {
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="E.g., A fitness tracker with meal planning..."
+                  placeholder="Paste your Figma URL or describe your app idea..."
                   value={appIdea}
                   onChange={(e) => setAppIdea(e.target.value)}
                   onKeyDown={(e) => {
