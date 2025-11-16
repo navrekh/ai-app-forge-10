@@ -29,11 +29,11 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/landing" element={<Index />} />
+          <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/figma-import" element={<FigmaImport />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/project/:id" element={<ProtectedRoute><PreviewApp /></ProtectedRoute>} />
           <Route path="/builds-history" element={<ProtectedRoute><BuildsHistory /></ProtectedRoute>} />
