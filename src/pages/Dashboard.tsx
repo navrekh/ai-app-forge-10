@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Smartphone, Send, Download, Settings, Home, FolderOpen, History, Loader2, Sparkles, RotateCw, Upload, Github } from "lucide-react";
+import { Smartphone, Send, Download, Settings, Home, FolderOpen, History, Loader2, Sparkles, RotateCw, Upload, Plug } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -10,6 +10,7 @@ import { PhoneMockup } from "@/components/PhoneMockup";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { PublishModal } from "@/components/PublishModal";
+import { IntegrationsModal } from "@/components/IntegrationsModal";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -33,6 +34,7 @@ const Dashboard = () => {
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'generating' | 'building' | 'completed'>('idle');
   const [showPublishModal, setShowPublishModal] = useState(false);
+  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [previewContent, setPreviewContent] = useState({
@@ -155,6 +157,10 @@ const Dashboard = () => {
         </div>
         
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setShowIntegrationsModal(true)}>
+            <Plug className="w-4 h-4 mr-2" />
+            Integrations
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => setShowPublishModal(true)}>
             <Upload className="w-4 h-4 mr-2" />
             Publish
@@ -328,8 +334,9 @@ const Dashboard = () => {
         </aside>
       </div>
 
-      {/* Publish Modal */}
+      {/* Modals */}
       <PublishModal open={showPublishModal} onOpenChange={setShowPublishModal} />
+      <IntegrationsModal open={showIntegrationsModal} onOpenChange={setShowIntegrationsModal} />
     </div>
   );
 };
