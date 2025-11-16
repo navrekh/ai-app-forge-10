@@ -173,7 +173,7 @@ const Dashboard = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
         <aside className="w-64 border-r bg-card p-4 flex flex-col gap-4">
-          <Button variant="ghost" className="justify-start" onClick={() => navigate('/landing')}>
+          <Button variant="ghost" className="justify-start" onClick={() => navigate('/')}>
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
