@@ -58,7 +58,7 @@ const Index = () => {
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
                   <Smartphone className="h-5 w-5 text-primary" />
                 </div>
-                <h1 className="text-2xl font-bold text-white">MobileDev</h1>
+                <h1 className="text-2xl font-bold text-white">AppDev</h1>
               </div>
               <nav className="hidden md:flex items-center gap-8">
                 <button onClick={() => navigate('/templates')} className="text-white/90 hover:text-white transition-colors text-sm font-medium">
