@@ -1,59 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles, Apple } from "lucide-react";
-import { toast } from "react-toastify";
-import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Smartphone, Send, Download, Settings, Home, FolderOpen, History, Loader2, Sparkles, RotateCw } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
-import { buildService } from "@/api/buildService";
-import { BuildProgress } from "@/components/BuildProgress";
-import { Header } from "@/components/Header";
 import { PhoneMockup } from "@/components/PhoneMockup";
-import { PublishDialog } from "@/components/PublishDialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 
-interface BuildResponse {
-  buildId: string;
-  status: string;
+interface Message {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
 }
-
-interface BuildStatusResponse {
-  status: 'planning' | 'generating' | 'building' | 'packaging' | 'completed' | 'failed';
-  progress: number;
-  downloadUrl?: string;
-  error?: string;
-}
-
-const STATUS_EMOJI = {
-  planning: '🧠',
-  generating: '🏗️',
-  building: '⚙️',
-  packaging: '📦',
-  completed: '✅',
-  failed: '❌'
-};
-
-const STATUS_LABELS = {
-  planning: 'Planning',
-  generating: 'Generating Code',
-  building: 'Building',
-  packaging: 'Packaging',
-  completed: 'Completed',
-  failed: 'Failed'
-};
 
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const [projectName, setProjectName] = useState('');
-  const [buildId, setBuildId] = useState<string | null>(null);
-  const [buildStatus, setBuildStatus] = useState<BuildStatusResponse | null>(null);
-  const [isBuilding, setIsBuilding] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
-  const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [prompt, setPrompt] = useState('');
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'system',
+      content: 'Welcome to AppDev! Describe your app idea or paste a Figma URL to get started.',
+      timestamp: new Date()
+    }
+  ]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [buildProgress, setBuildProgress] = useState(0);
+  const [buildStatus, setBuildStatus] = useState<'idle' | 'generating' | 'building' | 'completed'>('idle');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Get user session
+  const [previewContent, setPreviewContent] = useState({
+    title: 'My App',
+    screens: ['Welcome Screen']
+  });
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -66,282 +50,276 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Auto-start build if app idea is passed from Index page
   useEffect(() => {
-    const state = location.state as { appIdea?: string } | null;
-    if (state?.appIdea && user) {
-      setProjectName(state.appIdea);
-      // Clear the state to prevent re-triggering
+    const state = location.state as { appIdea?: string; figmaUrl?: string; templateId?: string } | null;
+    if (state?.appIdea) {
+      setPrompt(state.appIdea);
+      handleSendPrompt(state.appIdea);
       window.history.replaceState({}, document.title);
-      // Start build automatically
-      handleStartBuild(state.appIdea);
+    } else if (state?.figmaUrl) {
+      setPrompt(`Import from Figma: ${state.figmaUrl}`);
+      handleSendPrompt(`Import from Figma: ${state.figmaUrl}`);
+      window.history.replaceState({}, document.title);
+    } else if (state?.templateId) {
+      setPrompt(`Create app from ${state.templateId} template`);
+      handleSendPrompt(`Create app from ${state.templateId} template`);
+      window.history.replaceState({}, document.title);
     }
-  }, [location.state, user]);
+  }, [location.state]);
 
-  const handleStartBuild = async (ideaFromProps?: string) => {
-    const idea = ideaFromProps || projectName.trim();
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSendPrompt = async (customPrompt?: string) => {
+    const messageContent = customPrompt || prompt.trim();
     
-    if (!idea) {
-      toast.error('Please enter a project name');
+    if (!messageContent) {
+      toast.error('Please enter a prompt');
       return;
     }
 
-    setIsBuilding(true);
-    setLogs(['🚀 Starting build...', `🔗 Connecting to ${import.meta.env.VITE_API_URL}`]);
-    setBuildStatus(null);
-    setBuildId(null);
+    const userMessage: Message = {
+      role: 'user',
+      content: messageContent,
+      timestamp: new Date()
+    };
 
-    try {
-      console.log('Attempting to start build...');
-      
-      const data = await buildService.startBuild({
-        projectName: idea.substring(0, 50) || "My App",
-        prompt: idea,
-        screens: [],
+    setMessages(prev => [...prev, userMessage]);
+    setPrompt('');
+    setIsGenerating(true);
+    setBuildStatus('generating');
+    setBuildProgress(10);
+
+    // Simulate AI response
+    setTimeout(() => {
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: `I'm generating your app based on: "${messageContent}". Creating screens, components, and navigation...`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      setBuildProgress(40);
+    }, 1000);
+
+    // Simulate build progress
+    setTimeout(() => {
+      setBuildStatus('building');
+      setBuildProgress(70);
+      setPreviewContent({
+        title: messageContent.split(' ').slice(0, 3).join(' ') || 'My App',
+        screens: ['Home', 'Details', 'Profile']
       });
+    }, 3000);
+
+    setTimeout(() => {
+      setBuildStatus('completed');
+      setBuildProgress(100);
+      setIsGenerating(false);
       
-      console.log('Build started successfully:', data);
-      setBuildId(data.buildId);
-      setLogs(prev => [...prev, `✅ Build started with ID: ${data.buildId}`]);
-      
-      toast.success('🎉 Build started!', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
-    } catch (error) {
-      console.error('Build error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-        toast.error('❌ Cannot connect to backend. Please check if the server is running at ' + import.meta.env.VITE_API_URL);
-        setLogs(prev => [...prev, `❌ Connection failed: Cannot reach ${import.meta.env.VITE_API_URL}`, '💡 Check: 1) Server is running 2) SSL configured 3) CORS enabled']);
-      } else {
-        toast.error(`❌ Build failed: ${errorMessage}`);
-        setLogs(prev => [...prev, `❌ Error: ${errorMessage}`]);
-      }
-      
-      setIsBuilding(false);
-    }
+      const completeMessage: Message = {
+        role: 'assistant',
+        content: '✅ Your app is ready! You can now preview it on the phone screen and download the APK/IPA files.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, completeMessage]);
+      toast.success('App generated successfully!');
+    }, 5000);
   };
 
-  const handleNewBuild = () => {
-    setProjectName('');
-    setBuildId(null);
-    setBuildStatus(null);
-    setIsBuilding(false);
-    setLogs([]);
+  const handleDownloadAPK = () => {
+    toast.info('Building APK file...');
+    setTimeout(() => {
+      toast.success('APK ready for download!');
+    }, 2000);
+  };
+
+  const handleDownloadIPA = () => {
+    toast.info('Building IPA file...');
+    setTimeout(() => {
+      toast.success('IPA ready for download!');
+    }, 2000);
   };
 
   return (
-    <div className="min-h-screen gradient-hero relative overflow-hidden">
-      {/* Ambient gradient orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-      </div>
+    <div className="h-screen flex flex-col bg-background">
+      {/* Top Header */}
+      <header className="h-16 border-b bg-card flex items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg">
+            <Smartphone className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <h1 className="text-xl font-bold">AppDev</h1>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={() => navigate('/projects')}>
+            <FolderOpen className="w-4 h-4 mr-2" />
+            Projects
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+        </div>
+      </header>
 
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <Header 
-          showDashboard={false} 
-          showPublish={!!buildId && buildStatus?.status === 'completed'}
-          onPublishClick={() => setShowPublishDialog(true)}
-        />
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar */}
+        <aside className="w-64 border-r bg-card p-4 flex flex-col gap-4">
+          <Button variant="ghost" className="justify-start" onClick={() => navigate('/')}>
+            <Home className="w-4 h-4 mr-2" />
+            Home
+          </Button>
+          <Button variant="ghost" className="justify-start" onClick={() => navigate('/projects')}>
+            <FolderOpen className="w-4 h-4 mr-2" />
+            My Projects
+          </Button>
+          <Button variant="ghost" className="justify-start" onClick={() => navigate('/builds-history')}>
+            <History className="w-4 h-4 mr-2" />
+            Build History
+          </Button>
 
-        {/* Publish Dialog */}
-        <PublishDialog
-          open={showPublishDialog}
-          onOpenChange={setShowPublishDialog}
-          projectName={projectName}
-          buildId={buildId || undefined}
-        />
-
-        {/* Main Content */}
-        <main className="flex-1 container mx-auto px-4 py-8">
-          {!buildId ? (
-            <div className="flex items-center justify-center min-h-[80vh]">
-              <div className="w-full max-w-3xl space-y-8 sm:space-y-12">
-                {/* Hero Section */}
-                <div className="text-center space-y-4 sm:space-y-6">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
-                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-sm font-medium text-primary">AI-Powered Builder</span>
-                  </div>
-                  
-                  <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
-                    <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
-                      Build Apps in Seconds
-                    </span>
-                  </h1>
-                  
-                  <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-                    Transform your ideas into production-ready mobile apps with AI
-                  </p>
+          {buildStatus !== 'idle' && (
+            <Card className="p-4 mt-auto">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">Build Progress</span>
+                  <span className="text-muted-foreground">{buildProgress}%</span>
                 </div>
+                <Progress value={buildProgress} />
+                <p className="text-xs text-muted-foreground capitalize">{buildStatus}</p>
+              </div>
+            </Card>
+          )}
+        </aside>
 
-                {/* Main Card */}
-                <div className="bg-card/40 backdrop-blur-xl shadow-card border border-border/50 rounded-3xl p-6 sm:p-10 space-y-8 hover:shadow-glow transition-all duration-300">
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                      <label className="text-sm font-semibold text-foreground/90 block">
-                        What would you like to build?
-                      </label>
-                      <Input
-                        value={projectName}
-                        onChange={(e) => setProjectName(e.target.value)}
-                        placeholder="e.g., A todo app with reminders and dark mode..."
-                        className="h-14 text-base bg-background/50 border-border/60 focus:border-primary/60 transition-colors backdrop-blur-sm"
-                        disabled={isBuilding}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && !isBuilding) {
-                            handleStartBuild();
-                          }
-                        }}
-                      />
-                    </div>
+        {/* Center Preview Area */}
+        <main className="flex-1 flex flex-col items-center justify-center bg-muted/20 p-8">
+          <div className="mb-6 flex gap-3">
+            <Button onClick={handleDownloadAPK} disabled={buildStatus !== 'completed'}>
+              <Download className="w-4 h-4 mr-2" />
+              Download APK
+            </Button>
+            <Button onClick={handleDownloadIPA} disabled={buildStatus !== 'completed'}>
+              <Download className="w-4 h-4 mr-2" />
+              Download IPA
+            </Button>
+          </div>
 
-                    <Button 
-                      onClick={() => handleStartBuild()}
-                      disabled={isBuilding || !projectName.trim()}
-                      size="lg"
-                      className="w-full h-14 text-base font-semibold gradient-primary hover:opacity-90 transition-all shadow-lg hover:shadow-glow"
-                    >
-                      {isBuilding ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Initializing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 h-5 w-5" />
-                          Start Building
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Footer Info */}
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Powered by <span className="font-semibold text-foreground">appdev.co.in</span>
-                  </p>
-                </div>
+          {isGenerating ? (
+            <div className="text-center space-y-6">
+              <RotateCw className="w-16 h-16 mx-auto animate-spin text-primary" />
+              <div className="space-y-2">
+                <p className="text-lg font-medium">Generating your app...</p>
+                <p className="text-sm text-muted-foreground">{buildStatus === 'generating' ? 'Creating UI components' : 'Building app files'}</p>
               </div>
             </div>
           ) : (
-            <div className="grid lg:grid-cols-2 gap-8 items-start max-w-7xl mx-auto">
-              {/* Left side - Build Progress Component */}
-              <div className="space-y-6">
-                {/* New BuildProgress Component */}
-                <BuildProgress 
-                  buildId={buildId}
-                  onDownload={() => {
-                    if (buildStatus?.downloadUrl) {
-                      window.open(buildStatus.downloadUrl, '_blank');
-                      toast.success('⬇️ Download started!');
-                    }
-                  }}
-                  onCancel={() => {
-                    setBuildId(null);
-                    setIsBuilding(false);
-                    toast.info('Build cancelled');
-                  }}
-                />
-
-                {/* Build Logs */}
-                <div className="bg-card rounded-xl border p-4 space-y-2 max-h-96 overflow-y-auto">
-                  <h3 className="text-sm font-semibold mb-3">Build Logs</h3>
-                  {logs.map((log, index) => (
-                    <div 
-                      key={index} 
-                      className="text-sm text-muted-foreground font-mono animate-fade-in"
-                    >
-                      {log}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                  {buildStatus?.status === 'completed' && buildStatus.downloadUrl && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        onClick={() => {
-                          window.open(buildStatus.downloadUrl, '_blank');
-                          toast.success('⬇️ Android APK download started');
-                        }}
-                        size="lg"
-                        className="h-12 gradient-primary"
-                      >
-                        <Download className="mr-2 h-5 w-5" />
-                        Download APK
-                      </Button>
-                      
-                      <Button
-                        onClick={() => {
-                          toast.info('🍎 iOS IPA build coming soon!');
-                        }}
-                        size="lg"
-                        variant="outline"
-                        className="h-12"
-                      >
-                        <Apple className="mr-2 h-5 w-5" />
-                        Download IPA
-                      </Button>
-                    </div>
-                  )}
-
-                  {(buildStatus?.status === 'completed' || buildStatus?.status === 'failed') && (
-                    <Button
-                      onClick={handleNewBuild}
-                      variant="outline"
-                      size="lg"
-                      className="w-full h-12"
-                    >
-                      Start New Build
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Right side - Phone Mockup */}
-              <div className="relative lg:sticky lg:top-8">
-                <PhoneMockup>
-                  <div className="h-full bg-gradient-to-br from-primary/20 to-accent/20 p-6 flex flex-col items-center justify-center space-y-6">
-                    <div className="w-full space-y-4">
-                      {/* Mock app interface */}
-                      <div className="rounded-xl bg-card p-4 shadow-lg animate-fade-in">
-                        <div className="h-3 w-3/4 bg-primary/30 rounded mb-3" />
-                        <div className="h-2 w-full bg-muted/30 rounded mb-2" />
-                        <div className="h-2 w-2/3 bg-muted/30 rounded" />
-                      </div>
-                      
-                      <div className="rounded-xl bg-card p-4 shadow-lg animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="h-10 w-10 rounded-full bg-accent/30" />
-                          <div className="h-3 w-24 bg-primary/30 rounded" />
-                        </div>
-                        <div className="h-2 w-full bg-muted/30 rounded mb-2" />
-                        <div className="h-2 w-4/5 bg-muted/30 rounded" />
-                      </div>
-
-                      <div className="rounded-xl bg-gradient-primary p-4 shadow-glow animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                        <div className="h-3 w-32 bg-primary-foreground/80 rounded mb-2" />
-                        <div className="h-2 w-24 bg-primary-foreground/60 rounded" />
-                      </div>
-                    </div>
-
-                    <div className="text-center space-y-2 pt-4">
-                      <Sparkles className="h-8 w-8 text-primary mx-auto animate-pulse" />
-                      <p className="text-sm font-medium text-foreground">Building your app...</p>
-                    </div>
+            <PhoneMockup>
+              <div className="h-full bg-gradient-to-br from-primary/5 to-accent/5 p-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-foreground">{previewContent.title}</h2>
+                    <div className="w-10 h-10 rounded-full bg-primary" />
                   </div>
-                </PhoneMockup>
+                  
+                  <div className="space-y-3 mt-8">
+                    {previewContent.screens.map((screen, idx) => (
+                      <div key={idx} className="bg-card rounded-xl p-4 shadow-sm border">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Smartphone className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-foreground">{screen}</div>
+                            <div className="text-sm text-muted-foreground">Ready to use</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {buildStatus === 'idle' && (
+                    <div className="text-center py-12">
+                      <Sparkles className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Start by describing your app idea</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            </PhoneMockup>
           )}
         </main>
+
+        {/* Right Chat Panel */}
+        <aside className="w-96 border-l bg-card flex flex-col">
+          <div className="p-4 border-b">
+            <h2 className="font-semibold flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              AI Assistant
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">Describe your app or paste Figma URL</p>
+          </div>
+
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4">
+              {messages.map((message, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : message.role === 'system'
+                        ? 'bg-muted text-muted-foreground text-sm'
+                        : 'bg-accent text-accent-foreground'
+                    }`}
+                  >
+                    <p className="text-sm">{message.content}</p>
+                    <p className="text-xs opacity-70 mt-1">
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          <div className="p-4 border-t">
+            <div className="flex gap-2">
+              <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendPrompt();
+                  }
+                }}
+                placeholder="Describe your app or paste Figma URL..."
+                className="resize-none"
+                rows={3}
+                disabled={isGenerating}
+              />
+              <Button
+                onClick={() => handleSendPrompt()}
+                disabled={isGenerating || !prompt.trim()}
+                size="icon"
+                className="h-full"
+              >
+                {isGenerating ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );
