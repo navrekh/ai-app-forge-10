@@ -272,6 +272,18 @@ const Dashboard = () => {
               AI Assistant
             </h2>
             <p className="text-xs text-muted-foreground mt-1">Describe your app or paste Figma URL</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full mt-3"
+              onClick={() => {
+                setPrompt("Import from Figma: ");
+                document.querySelector<HTMLTextAreaElement>('textarea')?.focus();
+              }}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Import Figma Design
+            </Button>
           </div>
 
           <ScrollArea className="flex-1 p-4">
