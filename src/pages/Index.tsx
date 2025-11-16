@@ -86,7 +86,7 @@ const Index = () => {
                   </>
                 ) : (
                   <Button onClick={() => navigate('/auth')} variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">
-                    Get the app
+                    Sign In / Sign Up
                   </Button>
                 )}
               </div>
