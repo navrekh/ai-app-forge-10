@@ -74,15 +74,15 @@ const Index = () => {
               <div className="flex items-center gap-3">
                 {user ? (
                   <>
-                    <Button onClick={() => navigate('/dashboard')} variant="secondary" size="sm">
+                    <Button onClick={() => navigate('/dashboard')} variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/10 hover:text-white">
                       Dashboard
                     </Button>
-                    <Button onClick={() => navigate('/profile')} variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                    <Button onClick={() => navigate('/profile')} variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">
                       Profile
                     </Button>
                   </>
                 ) : (
-                  <Button onClick={() => navigate('/auth')} variant="secondary" size="sm">
+                  <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/10 hover:text-white">
                     Get the app
                   </Button>
                 )}
@@ -133,7 +133,7 @@ const Index = () => {
               <Button 
                 onClick={handleStartCreating}
                 size="lg"
-                className="w-full h-16 text-lg bg-white text-primary hover:bg-white/90 shadow-xl font-semibold"
+                className="w-full h-16 text-lg bg-white text-purple-600 hover:bg-white/90 shadow-xl font-semibold hover:scale-105 transition-transform"
               >
                 Start Building Free
                 <ArrowRight className="ml-2 h-5 w-5" />
