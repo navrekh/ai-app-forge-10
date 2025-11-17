@@ -1,5 +1,5 @@
 import axios from "axios";
-import { cognitoAuth } from "./cognitoAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -11,9 +11,9 @@ export const apiClient = axios.create({
 // Add JWT token to all requests
 apiClient.interceptors.request.use(
   async (config) => {
-    const token = await cognitoAuth.getIdToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      config.headers.Authorization = `Bearer ${session.access_token}`;
     }
     return config;
   },
@@ -28,7 +28,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid, redirect to login
-      window.location.href = '/auth-cognito';
+      window.location.href = '/auth';
     }
     return Promise.reject(error);
   }

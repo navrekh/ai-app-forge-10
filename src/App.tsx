@@ -3,11 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./config/amplify";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import AuthCognito from "./pages/AuthCognito";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Templates from "./pages/Templates";
@@ -33,7 +31,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/auth-cognito" element={<AuthCognito />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/figma-import" element={<FigmaImport />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
