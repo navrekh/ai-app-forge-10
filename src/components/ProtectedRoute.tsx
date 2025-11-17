@@ -1,24 +1,33 @@
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { cognitoAuth } from "@/utils/cognitoAuth";
+import { Hub } from 'aws-amplify/utils';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthenticated(!!session);
+    // Check initial auth state
+    cognitoAuth.getCurrentUser().then((user) => {
+      setAuthenticated(!!user);
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthenticated(!!session);
-      setLoading(false);
+    // Listen for auth changes
+    const unsubscribe = Hub.listen('auth', ({ payload }) => {
+      switch (payload.event) {
+        case 'signedIn':
+          setAuthenticated(true);
+          break;
+        case 'signedOut':
+          setAuthenticated(false);
+          break;
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return unsubscribe;
   }, []);
 
   if (loading) {
