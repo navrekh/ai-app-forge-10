@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Smartphone, Send, Download, Settings, Home, FolderOpen, History, Loader2, Sparkles, RotateCw, Upload, Plug } from "lucide-react";
+import { Smartphone, Send, Download, Settings, Home, FolderOpen, History, Loader2, Sparkles, RotateCw, Upload, Plug, Code2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -35,6 +35,7 @@ const Dashboard = () => {
   const [buildStatus, setBuildStatus] = useState<'idle' | 'generating' | 'building' | 'completed'>('idle');
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
+  const [selectedFramework, setSelectedFramework] = useState<'react-native' | 'flutter'>('react-native');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [previewContent, setPreviewContent] = useState({
@@ -313,7 +314,32 @@ const Dashboard = () => {
             </div>
           </ScrollArea>
 
-          <div className="p-4 border-t">
+          <div className="p-4 border-t space-y-3">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Code2 className="w-3.5 h-3.5" />
+                Target Framework
+              </label>
+              <div className="flex gap-2">
+                <Button
+                  variant={selectedFramework === 'react-native' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setSelectedFramework('react-native')}
+                >
+                  React Native
+                </Button>
+                <Button
+                  variant={selectedFramework === 'flutter' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setSelectedFramework('flutter')}
+                >
+                  Flutter
+                </Button>
+              </div>
+            </div>
+            
             <div className="flex gap-2">
               <Textarea
                 value={prompt}
