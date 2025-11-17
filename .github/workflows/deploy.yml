@@ -1,4 +1,4 @@
-name: Deploy Website to AWS S3
+name: Deploy Website to AWS
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Sync to S3
+      - name: Sync files to S3 bucket
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --delete
@@ -33,7 +33,7 @@ jobs:
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2
         with:
-          distribution-id: YOUR_DISTRIBUTION_ID
+          distribution-id: E2DOIGLD089756
           paths: '/*'
         env:
           AWS_REGION: us-east-1
