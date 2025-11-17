@@ -39,7 +39,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!authenticated) {
-    return <Navigate to="/auth-cognito" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   return <>{children}</>;
