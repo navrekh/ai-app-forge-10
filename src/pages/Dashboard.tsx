@@ -176,8 +176,14 @@ const Dashboard = () => {
           <div className="hidden lg:block" />
           
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setShowIntegrationsModal(true)}>
-              <Plug className="w-5 h-5" />
+            <Button 
+              onClick={() => setShowIntegrationsModal(true)}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Plug className="w-4 h-4" />
+              Integrations
             </Button>
             <Button 
               onClick={() => setShowPublishModal(true)}
