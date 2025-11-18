@@ -91,8 +91,6 @@ const Dashboard = () => {
     setMessages(prev => [...prev, userMessage]);
     setPrompt('');
     setIsGenerating(true);
-    setBuildStatus('generating');
-    setBuildProgress(10);
 
     // Simulate AI response
     setTimeout(() => {
@@ -102,46 +100,23 @@ const Dashboard = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, assistantMessage]);
-      setBuildProgress(40);
-    }, 1000);
-
-    // Simulate build progress
-    setTimeout(() => {
-      setBuildStatus('building');
-      setBuildProgress(70);
-      setPreviewContent({
-        title: messageContent.split(' ').slice(0, 3).join(' ') || 'My App',
-        screens: ['Home', 'Details', 'Profile']
-      });
-    }, 3000);
-
-    setTimeout(() => {
-      setBuildStatus('completed');
-      setBuildProgress(100);
       setIsGenerating(false);
       
-      const completeMessage: Message = {
-        role: 'assistant',
-        content: '✅ Your app is ready! You can now preview it on the phone screen and download the APK/IPA files.',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, completeMessage]);
+      setPreviewContent({
+        title: 'My App',
+        screens: ['Welcome Screen']
+      });
+      
       toast.success('App generated successfully!');
-    }, 5000);
+    }, 1500);
   };
 
   const handleDownloadAPK = () => {
-    toast.info('Building APK file...');
-    setTimeout(() => {
-      toast.success('APK ready for download!');
-    }, 2000);
+    toast.info('APK download will be available after app generation');
   };
 
   const handleDownloadIPA = () => {
-    toast.info('Building IPA file...');
-    setTimeout(() => {
-      toast.success('IPA ready for download!');
-    }, 2000);
+    toast.info('IPA download will be available after app generation');
   };
 
   return (
@@ -232,6 +207,7 @@ const Dashboard = () => {
                   variant="outline"
                   size="sm"
                   className="gap-2"
+                  onClick={handleDownloadAPK}
                 >
                   <Download className="w-4 h-4" />
                   Download APK
@@ -240,6 +216,7 @@ const Dashboard = () => {
                   variant="outline"
                   size="sm"
                   className="gap-2"
+                  onClick={handleDownloadIPA}
                 >
                   <Download className="w-4 h-4" />
                   Download IPA
@@ -280,47 +257,42 @@ const Dashboard = () => {
           {/* Right Sidebar - Chat Interface */}
           <div className="flex flex-col h-[calc(100vh-7rem)]">
             <Card className="flex-1 flex flex-col p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                  AI Assistant
-                </h3>
-                <Button variant="ghost" size="sm" onClick={() => setMessages([messages[0]])} className="hover:bg-primary/10 transition-all">
-                  <RotateCw className="w-4 h-4 mr-2" />
-                  Reset
-                </Button>
+              <div className="flex items-center gap-2 mb-4 pb-4 border-b">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold">AI Assistant</h3>
+              </div>
+              
+              <div className="mb-4 p-3 bg-accent/50 rounded-lg text-sm">
+                Describe your app or paste Figma URL
               </div>
 
-              <ScrollArea className="flex-1 pr-4 mb-4">
-                <div className="space-y-4">
+              <ScrollArea className="flex-1 mb-4">
+                <div className="space-y-3 pr-4">
                   {messages.map((message, index) => (
                     <div
                       key={index}
-                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
+                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-2xl p-4 shadow-sm ${
+                        className={`max-w-[85%] rounded-lg p-3 ${
                           message.role === 'user'
-                            ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground'
-                            : message.role === 'system'
-                            ? 'bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground border border-primary/20'
-                            : 'bg-gradient-to-br from-muted to-muted/80 border border-primary/10'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                        <p className="text-xs opacity-70 mt-2">
+                        <p className="text-sm">{message.content}</p>
+                        <p className="text-xs opacity-70 mt-1">
                           {message.timestamp.toLocaleTimeString()}
                         </p>
                       </div>
                     </div>
                   ))}
                   {isGenerating && (
-                    <div className="flex justify-start animate-fade-in">
-                      <div className="bg-gradient-to-br from-muted to-muted/80 rounded-2xl p-4 border border-primary/10">
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                          <span className="text-sm text-muted-foreground">Thinking...</span>
-                        </div>
+                    <div className="flex justify-start">
+                      <div className="bg-muted rounded-lg p-3">
+                        <p className="text-sm">Generating...</p>
                       </div>
                     </div>
                   )}
@@ -328,49 +300,73 @@ const Dashboard = () => {
                 </div>
               </ScrollArea>
 
-              <div className="space-y-3">
-                <Textarea
-                  placeholder="Describe your app or paste Figma URL..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendPrompt();
-                    }
-                  }}
-                  className="min-h-[100px] resize-none border-primary/20 focus-visible:ring-primary/20 bg-background/50"
-                  disabled={isGenerating}
-                />
+              <div className="space-y-3 pt-3 border-t">
                 <Button
-                  onClick={() => handleSendPrompt()}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full group transition-all hover:scale-[1.02]"
-                  size="lg"
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-2"
+                  onClick={() => navigate('/figma-import')}
                 >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />
-                      Send Message
-                    </>
-                  )}
+                  <Upload className="w-4 h-4" />
+                  Import Figma Design
                 </Button>
+                
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Target Framework</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant={selectedFramework === 'react-native' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedFramework('react-native')}
+                      className="w-full"
+                    >
+                      React Native
+                    </Button>
+                    <Button
+                      variant={selectedFramework === 'flutter' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedFramework('flutter')}
+                      className="w-full"
+                    >
+                      Flutter
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Textarea
+                    placeholder="Describe your app or paste Figma URL..."
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendPrompt();
+                      }
+                    }}
+                    className="min-h-[80px] resize-none"
+                    disabled={isGenerating}
+                  />
+                  <Button
+                    onClick={() => handleSendPrompt()}
+                    disabled={isGenerating || !prompt.trim()}
+                    size="icon"
+                    className="h-[80px] w-12 shrink-0"
+                  >
+                    <Send className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </Card>
           </div>
         </div>
       </div>
 
-      <PublishModal 
+      <PublishModal
         open={showPublishModal}
         onOpenChange={setShowPublishModal}
       />
-
+      
       <IntegrationsModal
         open={showIntegrationsModal}
         onOpenChange={setShowIntegrationsModal}
