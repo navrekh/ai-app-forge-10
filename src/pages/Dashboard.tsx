@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Smartphone, Send, Download, Settings, Home, FolderOpen, History, Loader2, Sparkles, RotateCw, Upload, Plug, Code2 } from "lucide-react";
+import { Smartphone, Send, Download, Settings, Home, FolderOpen, History, Loader2, Sparkles, RotateCw, Upload, Plug, Zap, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { PublishModal } from "@/components/PublishModal";
 import { IntegrationsModal } from "@/components/IntegrationsModal";
+import { Badge } from "@/components/ui/badge";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -147,234 +148,275 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Top Header */}
-      <header className="h-16 border-b bg-card flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg">
-            <Smartphone className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <h1 className="text-xl font-bold">AppDev</h1>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => setShowIntegrationsModal(true)}>
-            <Plug className="w-4 h-4 mr-2" />
-            Integrations
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowPublishModal(true)}>
-            <Upload className="w-4 h-4 mr-2" />
-            Publish
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/projects')}>
-            <FolderOpen className="w-4 h-4 mr-2" />
-            Projects
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar */}
-        <aside className="w-64 border-r bg-card p-4 flex flex-col gap-4">
-          <Button variant="ghost" className="justify-start" onClick={() => navigate('/')}>
-            <Home className="w-4 h-4 mr-2" />
-            Home
-          </Button>
-          <Button variant="ghost" className="justify-start" onClick={() => navigate('/projects')}>
-            <FolderOpen className="w-4 h-4 mr-2" />
-            My Projects
-          </Button>
-          <Button variant="ghost" className="justify-start" onClick={() => navigate('/builds-history')}>
-            <History className="w-4 h-4 mr-2" />
-            Build History
-          </Button>
-
-          {buildStatus !== 'idle' && (
-            <Card className="p-4 mt-auto">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">Build Progress</span>
-                  <span className="text-muted-foreground">{buildProgress}%</span>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Header */}
+      <header className="border-b bg-card/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <Progress value={buildProgress} />
-                <p className="text-xs text-muted-foreground capitalize">{buildStatus}</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-600 to-primary bg-clip-text text-transparent">
+                  AppDev Studio
+                </h1>
               </div>
-            </Card>
-          )}
-        </aside>
-
-        {/* Center Preview Area */}
-        <main className="flex-1 flex flex-col items-center justify-center bg-muted/20 p-8">
-          <div className="mb-6 flex gap-3">
-            <Button onClick={handleDownloadAPK} disabled={buildStatus !== 'completed'}>
-              <Download className="w-4 h-4 mr-2" />
-              Download APK
-            </Button>
-            <Button onClick={handleDownloadIPA} disabled={buildStatus !== 'completed'}>
-              <Download className="w-4 h-4 mr-2" />
-              Download IPA
-            </Button>
-          </div>
-
-          {isGenerating ? (
-            <div className="text-center space-y-6">
-              <RotateCw className="w-16 h-16 mx-auto animate-spin text-primary" />
-              <div className="space-y-2">
-                <p className="text-lg font-medium">Generating your app...</p>
-                <p className="text-sm text-muted-foreground">{buildStatus === 'generating' ? 'Creating UI components' : 'Building app files'}</p>
-              </div>
-            </div>
-          ) : (
-            <PhoneMockup>
-              <div className="h-full bg-gradient-to-br from-primary/5 to-accent/5 p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-foreground">{previewContent.title}</h2>
-                    <div className="w-10 h-10 rounded-full bg-primary" />
-                  </div>
-                  
-                  <div className="space-y-3 mt-8">
-                    {previewContent.screens.map((screen, idx) => (
-                      <div key={idx} className="bg-card rounded-xl p-4 shadow-sm border">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Smartphone className="w-6 h-6 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-semibold text-foreground">{screen}</div>
-                            <div className="text-sm text-muted-foreground">Ready to use</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {buildStatus === 'idle' && (
-                    <div className="text-center py-12">
-                      <Sparkles className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Start by describing your app idea</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </PhoneMockup>
-          )}
-        </main>
-
-        {/* Right Chat Panel */}
-        <aside className="w-96 border-l bg-card flex flex-col">
-          <div className="p-4 border-b">
-            <h2 className="font-semibold flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              AI Assistant
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">Describe your app or paste Figma URL</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full mt-3"
-              onClick={() => {
-                setPrompt("Import from Figma: ");
-                document.querySelector<HTMLTextAreaElement>('textarea')?.focus();
-              }}
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Import Figma Design
-            </Button>
-          </div>
-
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              {messages.map((message, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : message.role === 'system'
-                        ? 'bg-muted text-muted-foreground text-sm'
-                        : 'bg-accent text-accent-foreground'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-
-          <div className="p-4 border-t space-y-3">
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                <Code2 className="w-3.5 h-3.5" />
-                Target Framework
-              </label>
-              <div className="flex gap-2">
-                <Button
-                  variant={selectedFramework === 'react-native' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setSelectedFramework('react-native')}
-                >
-                  React Native
+              <nav className="hidden md:flex gap-2">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="hover:bg-primary/10 transition-all">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
                 </Button>
-                <Button
-                  variant={selectedFramework === 'flutter' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setSelectedFramework('flutter')}
-                >
-                  Flutter
+                <Button variant="ghost" size="sm" onClick={() => navigate('/projects')} className="hover:bg-primary/10 transition-all">
+                  <FolderOpen className="w-4 h-4 mr-2" />
+                  Projects
                 </Button>
-              </div>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/builds-history')} className="hover:bg-primary/10 transition-all">
+                  <History className="w-4 h-4 mr-2" />
+                  History
+                </Button>
+              </nav>
             </div>
-            
-            <div className="flex gap-2">
-              <Textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendPrompt();
-                  }
-                }}
-                placeholder="Describe your app or paste Figma URL..."
-                className="resize-none"
-                rows={3}
-                disabled={isGenerating}
-              />
-              <Button
-                onClick={() => handleSendPrompt()}
-                disabled={isGenerating || !prompt.trim()}
-                size="icon"
-                className="h-full"
-              >
-                {isGenerating ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => setShowIntegrationsModal(true)} className="hover:bg-primary/10 transition-all">
+                <Plug className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/user-profile')} className="hover:bg-primary/10 transition-all">
+                <Settings className="w-5 h-5" />
               </Button>
             </div>
           </div>
-        </aside>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Sidebar - Build Progress */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="p-6 border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  Build Progress
+                </h3>
+                {buildStatus !== 'idle' && (
+                  <Badge variant="secondary" className="animate-pulse">
+                    Active
+                  </Badge>
+                )}
+              </div>
+              {buildStatus !== 'idle' && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Status</span>
+                    <span className="font-medium capitalize text-primary">{buildStatus}</span>
+                  </div>
+                  <div className="space-y-2">
+                    <Progress value={buildProgress} className="h-3 bg-secondary" />
+                    <p className="text-sm text-muted-foreground text-right font-medium">
+                      {buildProgress}%
+                    </p>
+                  </div>
+                </div>
+              )}
+              {buildStatus === 'idle' && (
+                <div className="text-center py-8 space-y-3">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                    <Palette className="w-8 h-8 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Start by describing your app idea...
+                  </p>
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {/* Center - Preview Area */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="p-6 border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                  App Preview
+                </h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant={selectedFramework === 'react-native' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedFramework('react-native')}
+                    className="transition-all hover:scale-105"
+                  >
+                    React Native
+                  </Button>
+                  <Button
+                    variant={selectedFramework === 'flutter' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedFramework('flutter')}
+                    className="transition-all hover:scale-105"
+                  >
+                    Flutter
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex justify-center mb-6 animate-fade-in">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-600/20 blur-3xl rounded-full" />
+                  <PhoneMockup>
+                    <div className="p-6 h-full bg-gradient-to-b from-primary/10 via-transparent to-purple-600/5">
+                      <h2 className="text-xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                        {previewContent.title}
+                      </h2>
+                      <div className="space-y-3">
+                        {previewContent.screens.map((screen, index) => (
+                          <div 
+                            key={index} 
+                            className="p-4 bg-card/80 backdrop-blur rounded-xl border border-primary/20 shadow-sm hover:shadow-md transition-all hover:scale-[1.02] animate-fade-in"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            {screen}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </PhoneMockup>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={handleDownloadAPK}
+                  disabled={buildStatus !== 'completed'}
+                  className="w-full group transition-all hover:scale-[1.02]"
+                  size="lg"
+                >
+                  <Download className="w-4 h-4 mr-2 group-hover:animate-bounce" />
+                  Download APK
+                </Button>
+                <Button
+                  onClick={handleDownloadIPA}
+                  disabled={buildStatus !== 'completed'}
+                  variant="outline"
+                  className="w-full group transition-all hover:scale-[1.02] border-primary/20"
+                  size="lg"
+                >
+                  <Download className="w-4 h-4 mr-2 group-hover:animate-bounce" />
+                  Download IPA
+                </Button>
+                <Button
+                  onClick={() => setShowPublishModal(true)}
+                  disabled={buildStatus !== 'completed'}
+                  variant="secondary"
+                  className="col-span-2 transition-all hover:scale-[1.02]"
+                  size="lg"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Publish to Store
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right Sidebar - Chat Interface */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="p-6 h-[calc(100vh-200px)] flex flex-col border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  AI Assistant
+                </h3>
+                <Button variant="ghost" size="sm" onClick={() => setMessages([messages[0]])} className="hover:bg-primary/10 transition-all">
+                  <RotateCw className="w-4 h-4 mr-2" />
+                  Reset
+                </Button>
+              </div>
+
+              <ScrollArea className="flex-1 pr-4 mb-4">
+                <div className="space-y-4">
+                  {messages.map((message, index) => (
+                    <div
+                      key={index}
+                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-2xl p-4 shadow-sm ${
+                          message.role === 'user'
+                            ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground'
+                            : message.role === 'system'
+                            ? 'bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground border border-primary/20'
+                            : 'bg-gradient-to-br from-muted to-muted/80 border border-primary/10'
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                        <p className="text-xs opacity-70 mt-2">
+                          {message.timestamp.toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {isGenerating && (
+                    <div className="flex justify-start animate-fade-in">
+                      <div className="bg-gradient-to-br from-muted to-muted/80 rounded-2xl p-4 border border-primary/10">
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                          <span className="text-sm text-muted-foreground">Thinking...</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+
+              <div className="space-y-3">
+                <Textarea
+                  placeholder="Describe your app or paste Figma URL..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendPrompt();
+                    }
+                  }}
+                  className="min-h-[100px] resize-none border-primary/20 focus-visible:ring-primary/20 bg-background/50"
+                  disabled={isGenerating}
+                />
+                <Button
+                  onClick={() => handleSendPrompt()}
+                  disabled={isGenerating || !prompt.trim()}
+                  className="w-full group transition-all hover:scale-[1.02]"
+                  size="lg"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />
+                      Send Message
+                    </>
+                  )}
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Modals */}
-      <PublishModal open={showPublishModal} onOpenChange={setShowPublishModal} />
-      <IntegrationsModal open={showIntegrationsModal} onOpenChange={setShowIntegrationsModal} />
+      <PublishModal 
+        open={showPublishModal}
+        onOpenChange={setShowPublishModal}
+      />
+
+      <IntegrationsModal
+        open={showIntegrationsModal}
+        onOpenChange={setShowIntegrationsModal}
+      />
     </div>
   );
 };
