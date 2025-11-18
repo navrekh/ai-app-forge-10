@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { PublishModal } from "@/components/PublishModal";
 import { IntegrationsModal } from "@/components/IntegrationsModal";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -151,14 +152,14 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
-                  <Zap className="w-6 h-6 text-primary-foreground" />
+        <div className="container mx-auto px-3 sm:px-6 py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3 sm:gap-8">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
+                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-600 to-primary bg-clip-text text-transparent">
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary via-purple-600 to-primary bg-clip-text text-transparent">
                   AppDev Studio
                 </h1>
               </div>
@@ -177,7 +178,26 @@ const Dashboard = () => {
                 </Button>
               </nav>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => setShowPublishModal(true)}
+                disabled={buildStatus !== 'completed'}
+                variant="default"
+                size="sm"
+                className="transition-all hover:scale-[1.02] hidden sm:flex"
+              >
+                <Upload className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Publish</span>
+              </Button>
+              <Button 
+                onClick={() => setShowPublishModal(true)}
+                disabled={buildStatus !== 'completed'}
+                variant="default"
+                size="icon"
+                className="sm:hidden transition-all hover:scale-[1.02]"
+              >
+                <Upload className="w-4 h-4" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => setShowIntegrationsModal(true)} className="hover:bg-primary/10 transition-all">
                 <Plug className="w-5 h-5" />
               </Button>
@@ -190,8 +210,8 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left Sidebar - Build Progress */}
           <div className="lg:col-span-1 space-y-6">
             <Card className="p-6 border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
@@ -234,46 +254,37 @@ const Dashboard = () => {
           </div>
 
           {/* Center - Preview Area */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card className="p-6 border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Smartphone className="w-5 h-5 text-primary" />
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+            <Card className="p-4 sm:p-6 border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   App Preview
                 </h3>
-                <div className="flex gap-2">
-                  <Button
-                    variant={selectedFramework === 'react-native' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedFramework('react-native')}
-                    className="transition-all hover:scale-105"
-                  >
-                    React Native
-                  </Button>
-                  <Button
-                    variant={selectedFramework === 'flutter' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedFramework('flutter')}
-                    className="transition-all hover:scale-105"
-                  >
-                    Flutter
-                  </Button>
-                </div>
+                <Select value={selectedFramework} onValueChange={(value: 'react-native' | 'flutter') => setSelectedFramework(value)}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Select framework" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="react-native">React Native</SelectItem>
+                    <SelectItem value="flutter">Flutter</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="flex justify-center mb-6 animate-fade-in">
-                <div className="relative">
+              <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in">
+                <div className="relative scale-90 sm:scale-100">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-600/20 blur-3xl rounded-full" />
                   <PhoneMockup>
-                    <div className="p-6 h-full bg-gradient-to-b from-primary/10 via-transparent to-purple-600/5">
-                      <h2 className="text-xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                    <div className="p-4 sm:p-6 h-full bg-gradient-to-b from-primary/10 via-transparent to-purple-600/5">
+                      <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                         {previewContent.title}
                       </h2>
-                      <div className="space-y-3">
+                      <div className="space-y-2 sm:space-y-3">
                         {previewContent.screens.map((screen, index) => (
                           <div 
                             key={index} 
-                            className="p-4 bg-card/80 backdrop-blur rounded-xl border border-primary/20 shadow-sm hover:shadow-md transition-all hover:scale-[1.02] animate-fade-in"
+                            className="p-3 sm:p-4 bg-card/80 backdrop-blur rounded-xl border border-primary/20 shadow-sm hover:shadow-md transition-all hover:scale-[1.02] animate-fade-in text-sm sm:text-base"
                             style={{ animationDelay: `${index * 100}ms` }}
                           >
                             {screen}
@@ -285,43 +296,33 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <Button
                   onClick={handleDownloadAPK}
                   disabled={buildStatus !== 'completed'}
                   className="w-full group transition-all hover:scale-[1.02]"
-                  size="lg"
+                  size="sm"
                 >
-                  <Download className="w-4 h-4 mr-2 group-hover:animate-bounce" />
-                  Download APK
+                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover:animate-bounce" />
+                  <span className="text-xs sm:text-sm">APK</span>
                 </Button>
                 <Button
                   onClick={handleDownloadIPA}
                   disabled={buildStatus !== 'completed'}
                   variant="outline"
                   className="w-full group transition-all hover:scale-[1.02] border-primary/20"
-                  size="lg"
+                  size="sm"
                 >
-                  <Download className="w-4 h-4 mr-2 group-hover:animate-bounce" />
-                  Download IPA
-                </Button>
-                <Button
-                  onClick={() => setShowPublishModal(true)}
-                  disabled={buildStatus !== 'completed'}
-                  variant="secondary"
-                  className="col-span-2 transition-all hover:scale-[1.02]"
-                  size="lg"
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Publish to Store
+                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover:animate-bounce" />
+                  <span className="text-xs sm:text-sm">IPA</span>
                 </Button>
               </div>
             </Card>
           </div>
 
           {/* Right Sidebar - Chat Interface */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card className="p-6 h-[calc(100vh-200px)] flex flex-col border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+            <Card className="p-4 sm:p-6 h-[calc(100vh-180px)] sm:h-[calc(100vh-200px)] flex flex-col border-primary/20 shadow-lg bg-gradient-to-br from-card to-card/50 backdrop-blur">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-primary animate-pulse" />
