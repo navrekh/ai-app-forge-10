@@ -19,7 +19,6 @@ import Privacy from "./pages/Privacy";
 import Refunds from "./pages/Refunds";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
-import AdminAnalytics from "./pages/AdminAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -44,7 +43,6 @@ const App = () => (
           <Route path="/refunds" element={<Refunds />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/admin/analytics" element={<ProtectedRoute><AdminAnalytics /></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -9,15 +9,6 @@ verify_jwt = true
 [functions.create-apk-build]
 verify_jwt = true
 
-[functions.create-ipa-build]
-verify_jwt = true
-
-[functions.generate-app]
-verify_jwt = true
-
 [functions.check-build-status]
-verify_jwt = true
-
-[functions.deduct-credits]
 verify_jwt = true
 

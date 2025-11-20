@@ -92,62 +92,23 @@ const Dashboard = () => {
     setPrompt('');
     setIsGenerating(true);
 
-    try {
-      // Call generate-app function (costs 10 credits)
-      const { data, error } = await supabase.functions.invoke('generate-app', {
-        body: { 
-          prompt: messageContent,
-          framework: selectedFramework
-        }
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data.error) {
-        // Handle insufficient credits
-        if (data.requiredCredits) {
-          toast.error(`Insufficient credits. You need ${data.requiredCredits} credits to generate an app.`, {
-            action: {
-              label: 'Buy Credits',
-              onClick: () => navigate('/pricing')
-            }
-          });
-        } else {
-          toast.error(data.error);
-        }
-        setIsGenerating(false);
-        return;
-      }
-
-      // Display AI-generated app structure
+    // Simulate AI response
+    setTimeout(() => {
       const assistantMessage: Message = {
         role: 'assistant',
-        content: `✅ App generated successfully! (10 credits used)\n\n**${data.appStructure.title}**\n\n${data.appStructure.description}\n\n**Screens:**\n${data.appStructure.screens.map((s: any) => `• ${s.name}: ${s.description}`).join('\n')}\n\n**Credits remaining:** ${data.creditsRemaining}`,
+        content: `I'm generating your app based on: "${messageContent}". Creating screens, components, and navigation...`,
         timestamp: new Date()
       };
-      
       setMessages(prev => [...prev, assistantMessage]);
       setIsGenerating(false);
       
       setPreviewContent({
-        title: data.appStructure.title,
-        screens: data.appStructure.screens.map((s: any) => s.name)
+        title: 'My App',
+        screens: ['Welcome Screen']
       });
       
       toast.success('App generated successfully!');
-    } catch (error: any) {
-      console.error('Generation error:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: `❌ Failed to generate app: ${error.message || 'Unknown error'}`,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      setIsGenerating(false);
-      toast.error('Failed to generate app');
-    }
+    }, 1500);
   };
 
   const handleDownloadAPK = () => {
@@ -216,15 +177,6 @@ const Dashboard = () => {
           
           <div className="flex items-center gap-2">
             <Button 
-              onClick={() => navigate('/projects')}
-              variant="default"
-              size="sm"
-              className="gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              New Project
-            </Button>
-            <Button 
               onClick={() => setShowIntegrationsModal(true)}
               variant="outline"
               size="sm"
@@ -235,12 +187,15 @@ const Dashboard = () => {
             </Button>
             <Button 
               onClick={() => setShowPublishModal(true)}
-              variant="outline"
+              variant="default"
               size="sm"
               className="gap-2"
             >
               <Upload className="w-4 h-4" />
               Publish
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/projects')}>
+              <FileText className="w-5 h-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/user-profile')}>
               <Settings className="w-5 h-5" />

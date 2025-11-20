@@ -36,40 +36,6 @@ serve(async (req) => {
 
     console.log('Creating APK build for app:', appHistoryId);
 
-    // Deduct credits for APK build (5 credits)
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    const { data: creditResult, error: creditError } = await supabaseAdmin.rpc('deduct_credits', {
-      _user_id: user.id,
-      _amount: 5,
-      _description: 'APK build for app'
-    });
-
-    if (creditError || !creditResult.success) {
-      console.error('Credit deduction error:', creditError);
-      const errorMsg = creditResult?.error || 'Failed to deduct credits';
-      
-      if (errorMsg.includes('Insufficient credits')) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Insufficient credits. You need 5 credits to build an APK.',
-            currentCredits: creditResult?.current_credits,
-            requiredCredits: 5
-          }),
-          { 
-            status: 402,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-      throw new Error(errorMsg);
-    }
-
-    console.log('Credits deducted successfully. New balance:', creditResult.new_balance);
-
     // Get app data from history
     const { data: app, error: appError } = await supabaseClient
       .from('app_history')

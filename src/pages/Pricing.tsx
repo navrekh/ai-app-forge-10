@@ -76,15 +76,11 @@ const Pricing = () => {
             <div className="space-y-4 mb-8">
               <div className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span>100 credits for app generation & builds</span>
+                <span>100 credits for app generation</span>
               </div>
               <div className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span>Generate up to 5 complete apps (with APK/IPA)</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-sm text-muted-foreground">10 credits per generation, 5 per APK, 5 per IPA</span>
+                <span>Generate up to 100 mobile apps</span>
               </div>
               <div className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
