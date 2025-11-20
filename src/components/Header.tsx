@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Smartphone, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
+import { CreditsDisplay } from '@/components/CreditsDisplay';
 
 interface HeaderProps {
   showAuth?: boolean;
@@ -49,6 +50,7 @@ export const Header = ({ showAuth = true, showDashboard = true, onPublishClick, 
             )}
             {user ? (
               <>
+                <CreditsDisplay />
                 {showDashboard && (
                   <Button onClick={() => navigate('/dashboard')} variant="outline">
                     Dashboard
