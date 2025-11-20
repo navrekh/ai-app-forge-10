@@ -216,6 +216,15 @@ const Dashboard = () => {
           
           <div className="flex items-center gap-2">
             <Button 
+              onClick={() => navigate('/projects')}
+              variant="default"
+              size="sm"
+              className="gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              New Project
+            </Button>
+            <Button 
               onClick={() => setShowIntegrationsModal(true)}
               variant="outline"
               size="sm"
@@ -226,15 +235,12 @@ const Dashboard = () => {
             </Button>
             <Button 
               onClick={() => setShowPublishModal(true)}
-              variant="default"
+              variant="outline"
               size="sm"
               className="gap-2"
             >
               <Upload className="w-4 h-4" />
               Publish
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/projects')}>
-              <FileText className="w-5 h-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/user-profile')}>
               <Settings className="w-5 h-5" />
