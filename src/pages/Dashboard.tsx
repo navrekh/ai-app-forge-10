@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { PublishModal } from "@/components/PublishModal";
 import { IntegrationsModal } from "@/components/IntegrationsModal";
 import { NavLink } from "@/components/NavLink";
+import { CreditsDisplay } from "@/components/CreditsDisplay";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -173,9 +174,10 @@ const Dashboard = () => {
             <h1 className="text-lg font-bold">AppDev</h1>
           </div>
           
-          <div className="hidden lg:block" />
+          <div className="flex-1" />
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <CreditsDisplay />
             <Button 
               onClick={() => setShowIntegrationsModal(true)}
               variant="outline"
