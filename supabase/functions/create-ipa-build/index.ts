@@ -34,9 +34,9 @@ serve(async (req) => {
       throw new Error('App history ID is required');
     }
 
-    console.log('Creating APK build for app:', appHistoryId);
+    console.log('Creating IPA build for app:', appHistoryId);
 
-    // Deduct credits for APK build (5 credits)
+    // Deduct credits for IPA build (5 credits)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -45,7 +45,7 @@ serve(async (req) => {
     const { data: creditResult, error: creditError } = await supabaseAdmin.rpc('deduct_credits', {
       _user_id: user.id,
       _amount: 5,
-      _description: 'APK build for app'
+      _description: 'IPA build for app'
     });
 
     if (creditError || !creditResult.success) {
@@ -55,7 +55,7 @@ serve(async (req) => {
       if (errorMsg.includes('Insufficient credits')) {
         return new Response(
           JSON.stringify({ 
-            error: 'Insufficient credits. You need 5 credits to build an APK.',
+            error: 'Insufficient credits. You need 5 credits to build an IPA.',
             currentCredits: creditResult?.current_credits,
             requiredCredits: 5
           }),
@@ -92,7 +92,7 @@ serve(async (req) => {
       .insert({
         project_id: appHistoryId,
         user_id: user.id,
-        platform: 'android',
+        platform: 'ios',
         status: 'pending',
       })
       .select()
@@ -135,7 +135,7 @@ serve(async (req) => {
           .from('builds')
           .update({
             status: 'completed',
-            download_url: `https://example.com/builds/${build.id}.apk`,
+            download_url: `https://example.com/builds/${build.id}.ipa`,
           })
           .eq('id', build.id);
 
