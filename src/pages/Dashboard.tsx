@@ -124,7 +124,7 @@ const Dashboard = () => {
       // Display AI-generated app structure
       const assistantMessage: Message = {
         role: 'assistant',
-        content: `✅ App generated successfully! (5 credits used)\n\n**${data.appStructure.title}**\n\n${data.appStructure.description}\n\n**Screens:**\n${data.appStructure.screens.map((s: any) => `• ${s.name}: ${s.description}`).join('\n')}\n\n**Credits remaining:** ${data.creditsRemaining}`,
+        content: `✅ App generated successfully! (10 credits used)\n\n**${data.appStructure.title}**\n\n${data.appStructure.description}\n\n**Screens:**\n${data.appStructure.screens.map((s: any) => `• ${s.name}: ${s.description}`).join('\n')}\n\n**Credits remaining:** ${data.creditsRemaining}`,
         timestamp: new Date()
       };
       
