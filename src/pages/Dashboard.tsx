@@ -92,23 +92,62 @@ const Dashboard = () => {
     setPrompt('');
     setIsGenerating(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Call generate-app function (costs 10 credits)
+      const { data, error } = await supabase.functions.invoke('generate-app', {
+        body: { 
+          prompt: messageContent,
+          framework: selectedFramework
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.error) {
+        // Handle insufficient credits
+        if (data.requiredCredits) {
+          toast.error(`Insufficient credits. You need ${data.requiredCredits} credits to generate an app.`, {
+            action: {
+              label: 'Buy Credits',
+              onClick: () => navigate('/pricing')
+            }
+          });
+        } else {
+          toast.error(data.error);
+        }
+        setIsGenerating(false);
+        return;
+      }
+
+      // Display AI-generated app structure
       const assistantMessage: Message = {
         role: 'assistant',
-        content: `I'm generating your app based on: "${messageContent}". Creating screens, components, and navigation...`,
+        content: `✅ App generated successfully! (10 credits used)\n\n**${data.appStructure.title}**\n\n${data.appStructure.description}\n\n**Screens:**\n${data.appStructure.screens.map((s: any) => `• ${s.name}: ${s.description}`).join('\n')}\n\n**Credits remaining:** ${data.creditsRemaining}`,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, assistantMessage]);
       setIsGenerating(false);
       
       setPreviewContent({
-        title: 'My App',
-        screens: ['Welcome Screen']
+        title: data.appStructure.title,
+        screens: data.appStructure.screens.map((s: any) => s.name)
       });
       
       toast.success('App generated successfully!');
-    }, 1500);
+    } catch (error: any) {
+      console.error('Generation error:', error);
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: `❌ Failed to generate app: ${error.message || 'Unknown error'}`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      setIsGenerating(false);
+      toast.error('Failed to generate app');
+    }
   };
 
   const handleDownloadAPK = () => {
