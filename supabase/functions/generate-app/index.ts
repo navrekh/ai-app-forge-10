@@ -36,7 +36,7 @@ serve(async (req) => {
 
     console.log('Generating app for user:', user.id);
 
-    // Deduct credits for app generation (10 credits)
+    // Deduct credits for app generation (5 credits)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -44,7 +44,7 @@ serve(async (req) => {
 
     const { data: creditResult, error: creditError } = await supabaseAdmin.rpc('deduct_credits', {
       _user_id: user.id,
-      _amount: 10,
+      _amount: 5,
       _description: 'AI app generation'
     });
 
@@ -55,9 +55,9 @@ serve(async (req) => {
       if (errorMsg.includes('Insufficient credits')) {
         return new Response(
           JSON.stringify({ 
-            error: 'Insufficient credits. You need 10 credits to generate an app.',
+            error: 'Insufficient credits. You need 5 credits to generate an app.',
             currentCredits: creditResult?.current_credits,
-            requiredCredits: 10
+            requiredCredits: 5
           }),
           { 
             status: 402,
