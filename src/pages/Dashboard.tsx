@@ -176,14 +176,16 @@ const Dashboard = () => {
           
           <div className="flex-1" />
           
-          <div className="flex items-center gap-4">
-            <CreditsDisplay />
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="shrink-0">
+              <CreditsDisplay />
+            </div>
             
             <Button 
               onClick={() => navigate('/projects')}
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-2 shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Project</span>
