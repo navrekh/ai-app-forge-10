@@ -182,7 +182,7 @@ const Dashboard = () => {
             </div>
             
             <Button 
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
               variant="outline"
               size="sm"
               className="gap-2 shrink-0"
