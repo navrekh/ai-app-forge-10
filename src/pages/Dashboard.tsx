@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Smartphone, Send, Download, Settings, Upload, Plug, FileText } from "lucide-react";
+import { Smartphone, Send, Download, Settings, Upload, Plug, FileText, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -178,6 +178,17 @@ const Dashboard = () => {
           
           <div className="flex items-center gap-4">
             <CreditsDisplay />
+            
+            <Button 
+              onClick={() => navigate('/projects')}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">New Project</span>
+            </Button>
+            
             <Button 
               onClick={() => setShowIntegrationsModal(true)}
               variant="outline"
@@ -185,7 +196,7 @@ const Dashboard = () => {
               className="gap-2"
             >
               <Plug className="w-4 h-4" />
-              Integrations
+              <span className="hidden sm:inline">Integrations</span>
             </Button>
             <Button 
               onClick={() => setShowPublishModal(true)}
@@ -194,7 +205,7 @@ const Dashboard = () => {
               className="gap-2"
             >
               <Upload className="w-4 h-4" />
-              Publish
+              <span className="hidden sm:inline">Publish</span>
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/projects')}>
               <FileText className="w-5 h-5" />
