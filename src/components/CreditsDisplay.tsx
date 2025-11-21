@@ -9,7 +9,11 @@ export const CreditsDisplay = () => {
   const { credits, loading } = useCredits();
 
   if (loading) {
-    return <Skeleton className="h-10 w-32" />;
+    return (
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-10 w-32" />
+      </div>
+    );
   }
 
   const isLowCredits = credits !== null && credits <= 10;
