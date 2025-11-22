@@ -24,36 +24,6 @@ export const IntegrationsModal = ({ open, onOpenChange }: IntegrationsModalProps
         window.open("https://github.com/apps/lovable", "_blank");
       },
       buttonText: "Connect GitHub"
-    },
-    {
-      name: "Supabase",
-      icon: Database,
-      description: "Backend as a service with PostgreSQL database, authentication, and storage",
-      features: [
-        "PostgreSQL database",
-        "User authentication",
-        "File storage",
-        "Real-time subscriptions"
-      ],
-      action: () => {
-        window.open("https://supabase.com", "_blank");
-      },
-      buttonText: "Connect Supabase"
-    },
-    {
-      name: "Firebase",
-      icon: Flame,
-      description: "Google's platform for mobile and web app development",
-      features: [
-        "Cloud Firestore",
-        "Firebase Auth",
-        "Cloud Functions",
-        "Analytics & Crashlytics"
-      ],
-      action: () => {
-        window.open("https://firebase.google.com", "_blank");
-      },
-      buttonText: "Connect Firebase"
     }
   ];
 
@@ -61,9 +31,9 @@ export const IntegrationsModal = ({ open, onOpenChange }: IntegrationsModalProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Integrations</DialogTitle>
+          <DialogTitle className="text-2xl">GitHub Integration</DialogTitle>
           <DialogDescription>
-            Connect external services to enhance your app development workflow
+            Connect your GitHub repository for version control and collaboration
           </DialogDescription>
         </DialogHeader>
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Smartphone, Send, Download, Settings, Upload, Plug, FileText, Plus } from "lucide-react";
+import { Smartphone, Send, Download, Settings, Upload, Github, FileText, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -225,8 +225,8 @@ const Dashboard = () => {
               size="sm"
               className="gap-2"
             >
-              <Plug className="w-4 h-4" />
-              <span className="hidden sm:inline">Integrations</span>
+              <Github className="w-4 h-4" />
+              <span className="hidden sm:inline">GitHub</span>
             </Button>
             <Button 
               onClick={() => setShowPublishModal(true)}
