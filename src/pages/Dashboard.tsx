@@ -2,16 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Smartphone, Send, Download, Settings, Upload, Github, FileText, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Smartphone, Send, Download, Settings, Upload, Github, FileText, Plus, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PhoneMockup } from "@/components/PhoneMockup";
+import { PhonePreview } from "@/components/PhonePreview";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PublishModal } from "@/components/PublishModal";
 import { IntegrationsModal } from "@/components/IntegrationsModal";
 import { NavLink } from "@/components/NavLink";
 import { CreditsDisplay } from "@/components/CreditsDisplay";
+import type { User, Session } from '@supabase/supabase-js';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -20,7 +24,11 @@ interface Message {
 }
 
 const Dashboard = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [prompt, setPrompt] = useState('');
@@ -43,11 +51,15 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
       setUser(session?.user ?? null);
     });
 
@@ -74,6 +86,52 @@ const Dashboard = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl
+      }
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Account created! Please check your email to confirm.');
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Signed in successfully!');
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success('Signed out successfully!');
+  };
 
   const handleSendPrompt = async (customPrompt?: string) => {
     const messageContent = customPrompt || prompt.trim();
@@ -145,6 +203,90 @@ const Dashboard = () => {
     });
   };
 
+  // Show authentication form if not logged in
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="w-full max-w-md p-8">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+              <Smartphone className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <h1 className="text-3xl font-bold">AppDev</h1>
+          </div>
+
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="signin">
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signin-password">Password</Label>
+                  <Input
+                    id="signin-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Signing in...' : 'Sign In'}
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Creating account...' : 'Sign Up'}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-background w-full">
       {/* Left Sidebar */}
@@ -201,7 +343,7 @@ const Dashboard = () => {
           
           <div className="flex-1" />
           
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="shrink-0">
               <CreditsDisplay />
             </div>
@@ -209,7 +351,7 @@ const Dashboard = () => {
             <Button 
               onClick={() => {
                 resetDashboard();
-                navigate('/dashboard');
+                navigate('/');
               }}
               variant="outline"
               size="sm"
@@ -217,6 +359,35 @@ const Dashboard = () => {
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Project</span>
+            </Button>
+
+            <Button
+              onClick={() => setSelectedFramework('react-native')}
+              variant={selectedFramework === 'react-native' ? 'default' : 'outline'}
+              size="sm"
+              className="gap-2 bg-[hsl(var(--react-native))] hover:bg-[hsl(var(--react-native))]/90 text-white border-0"
+              style={selectedFramework === 'react-native' ? {} : { background: 'transparent', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))' }}
+            >
+              React Native
+            </Button>
+
+            <Button
+              onClick={() => setSelectedFramework('flutter')}
+              variant={selectedFramework === 'flutter' ? 'default' : 'outline'}
+              size="sm"
+              className="gap-2 bg-[hsl(var(--flutter))] hover:bg-[hsl(var(--flutter))]/90 text-white border-0"
+              style={selectedFramework === 'flutter' ? {} : { background: 'transparent', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))' }}
+            >
+              Flutter
+            </Button>
+
+            <Button
+              onClick={() => navigate('/figma-import')}
+              size="sm"
+              className="gap-2 bg-[hsl(var(--figma))] hover:bg-[hsl(var(--figma))]/90 text-white border-0"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline">Import Figma</span>
             </Button>
             
             <Button 
@@ -240,8 +411,8 @@ const Dashboard = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate('/projects')}>
               <FileText className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/user-profile')}>
-              <Settings className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+              <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </header>
@@ -273,32 +444,32 @@ const Dashboard = () => {
               </div>
               
               <div className="flex justify-center">
-                <PhoneMockup>
-                  <div className="p-6 h-full bg-background">
+                <PhonePreview isLoading={isGenerating}>
+                  <div className="p-6 h-full bg-white">
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-xl font-bold">{previewContent.title}</h2>
-                      <div className="w-12 h-12 rounded-full bg-primary" />
+                      <h2 className="text-xl font-bold text-gray-900">{previewContent.title}</h2>
+                      <div className="w-12 h-12 rounded-full bg-blue-500" />
                     </div>
                     <div className="space-y-3">
                       {previewContent.screens.map((screen, index) => (
-                        <Card key={index} className="p-4">
+                        <Card key={index} className="p-4 bg-gray-50 border-gray-200">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg border-2 border-primary/20 flex items-center justify-center">
-                              <Smartphone className="w-5 h-5 text-primary" />
+                            <div className="w-10 h-10 rounded-lg border-2 border-blue-200 flex items-center justify-center bg-white">
+                              <Smartphone className="w-5 h-5 text-blue-500" />
                             </div>
                             <div>
-                              <p className="font-medium">{screen}</p>
-                              <p className="text-sm text-muted-foreground">Ready to use</p>
+                              <p className="font-medium text-gray-900">{screen}</p>
+                              <p className="text-sm text-gray-600">Ready to use</p>
                             </div>
                           </div>
                         </Card>
                       ))}
                     </div>
-                    <div className="mt-8 text-center text-muted-foreground text-sm">
+                    <div className="mt-8 text-center text-gray-500 text-sm">
                       <p>Start by describing your app idea</p>
                     </div>
                   </div>
-                </PhoneMockup>
+                </PhonePreview>
               </div>
             </div>
           </div>
@@ -350,38 +521,6 @@ const Dashboard = () => {
               </ScrollArea>
 
               <div className="space-y-3 pt-3 border-t">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full gap-2"
-                  onClick={() => navigate('/figma-import')}
-                >
-                  <Upload className="w-4 h-4" />
-                  Import Figma Design
-                </Button>
-                
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">Target Framework</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant={selectedFramework === 'react-native' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedFramework('react-native')}
-                      className="w-full"
-                    >
-                      React Native
-                    </Button>
-                    <Button
-                      variant={selectedFramework === 'flutter' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedFramework('flutter')}
-                      className="w-full"
-                    >
-                      Flutter
-                    </Button>
-                  </div>
-                </div>
-                
                 <div className="flex gap-2">
                   <Textarea
                     placeholder="Describe your app or paste Figma URL..."
@@ -398,9 +537,9 @@ const Dashboard = () => {
                   />
                   <Button
                     onClick={() => handleSendPrompt()}
-                    disabled={isGenerating || !prompt.trim()}
                     size="icon"
-                    className="h-[80px] w-12 shrink-0"
+                    disabled={isGenerating}
+                    className="shrink-0 h-[80px] w-12"
                   >
                     <Send className="w-5 h-5" />
                   </Button>
@@ -411,15 +550,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <PublishModal
-        open={showPublishModal}
-        onOpenChange={setShowPublishModal}
-      />
-      
-      <IntegrationsModal
-        open={showIntegrationsModal}
-        onOpenChange={setShowIntegrationsModal}
-      />
+      <PublishModal open={showPublishModal} onOpenChange={setShowPublishModal} />
+      <IntegrationsModal open={showIntegrationsModal} onOpenChange={setShowIntegrationsModal} />
     </div>
   );
 };
