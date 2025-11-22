@@ -93,7 +93,7 @@ const Dashboard = () => {
     setPrompt('');
     setIsGenerating(true);
 
-    // Simulate AI response
+    // Simulate AI response and update live preview based on the prompt
     setTimeout(() => {
       const assistantMessage: Message = {
         role: 'assistant',
@@ -103,12 +103,20 @@ const Dashboard = () => {
       setMessages(prev => [...prev, assistantMessage]);
       setIsGenerating(false);
       
+      const shortTitle = messageContent.length > 35
+        ? `${messageContent.slice(0, 32)}...`
+        : messageContent || 'My App';
+
       setPreviewContent({
-        title: 'My App',
-        screens: ['Welcome Screen']
+        title: shortTitle,
+        screens: [
+          'Home Screen',
+          'Details Screen',
+          'Profile Screen'
+        ]
       });
       
-      toast.success('App generated successfully!');
+      toast.success('App preview updated!');
     }, 1500);
   };
 
@@ -118,6 +126,23 @@ const Dashboard = () => {
 
   const handleDownloadIPA = () => {
     toast.info('IPA download will be available after app generation');
+  };
+
+  const resetDashboard = () => {
+    setPrompt('');
+    setMessages([
+      {
+        role: 'system',
+        content: 'Welcome to AppDev! Describe your app idea or paste a Figma URL to get started.',
+        timestamp: new Date()
+      }
+    ]);
+    setIsGenerating(false);
+    setSelectedFramework('react-native');
+    setPreviewContent({
+      title: 'My App',
+      screens: ['Welcome Screen']
+    });
   };
 
   return (
@@ -182,7 +207,10 @@ const Dashboard = () => {
             </div>
             
             <Button 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => {
+                resetDashboard();
+                navigate('/dashboard');
+              }}
               variant="outline"
               size="sm"
               className="gap-2 shrink-0"
